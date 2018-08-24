@@ -7,7 +7,7 @@
     <groupId>com.project.base</groupId>
     <artifactId>project-base</artifactId>
     <packaging>pom</packaging>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <modules>
         <module>project-base-mybatis</module>
         <module>project-base-common</module>

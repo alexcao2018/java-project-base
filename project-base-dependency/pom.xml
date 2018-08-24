@@ -6,7 +6,7 @@
 
     <groupId>com.project.base</groupId>
     <artifactId>project-base-dependency</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
@@ -16,6 +16,7 @@
                 <artifactId>spring-context</artifactId>
                 <version>4.3.7.RELEASE</version>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
