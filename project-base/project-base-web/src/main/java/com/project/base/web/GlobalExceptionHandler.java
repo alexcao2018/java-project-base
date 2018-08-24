@@ -23,6 +23,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public String handleFileException(HttpServletRequest request, Throwable ex) {
         //TODO
         logger.error(ex.getMessage(), ex);
-        return "to do";
+        return ex.toString();
     }
 }
