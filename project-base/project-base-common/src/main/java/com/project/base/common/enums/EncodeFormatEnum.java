@@ -1,7 +1,7 @@
 package com.project.base.common.enums;
 
 public enum EncodeFormatEnum {
-    Base64("Base64", 0), Hex("Base64", 1);
+    Base64("Base64", 0), Hex("Hex", 1);
     // 成员变量
     private String name;
     private int index;
