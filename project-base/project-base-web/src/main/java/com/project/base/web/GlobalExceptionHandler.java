@@ -1,5 +1,6 @@
 package com.project.base.web;
 
+import com.project.base.model.CommonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,9 +21,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public String handleFileException(HttpServletRequest request, Throwable ex) {
+    public CommonResponse handleFileException(HttpServletRequest request, Throwable ex) {
         //TODO
         logger.error(ex.getMessage(), ex);
-        return ex.toString();
+        CommonResponse response = new CommonResponse();
+        response.setError(999);
+        response.setMessage(ex.getMessage());
+        return response;
     }
 }
