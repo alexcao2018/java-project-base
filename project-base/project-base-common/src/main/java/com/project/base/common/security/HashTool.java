@@ -1,6 +1,7 @@
 package com.project.base.common.security;
 
 import com.project.base.common.enums.EncodeFormatEnum;
+import com.project.base.common.lang.string.EncodeTool;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -42,9 +43,9 @@ public class HashTool {
 
     private static String encode(byte[] byteArray,EncodeFormatEnum returnEncodeFormat){
         if (returnEncodeFormat.equals(EncodeFormatEnum.Hex))
-            return Hex.encodeHexString(byteArray);
+            return EncodeTool.encodeHex(byteArray);
         else if(returnEncodeFormat.equals(EncodeFormatEnum.Base64))
-            return Base64.encodeBase64String(byteArray);
+            return EncodeTool.encodeBase64(byteArray);
 
         return null;
     }

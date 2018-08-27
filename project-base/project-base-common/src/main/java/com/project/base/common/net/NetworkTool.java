@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class NetworkTool {
@@ -59,11 +61,13 @@ public class NetworkTool {
             logger.warn("Failed to retriving ip address, " + e.getMessage(), e);
         }
         try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> interfacesEnumeration = NetworkInterface.getNetworkInterfaces();
+            List<NetworkInterface> interfaces = Collections.list(interfacesEnumeration);
             if (interfaces != null) {
-                while (interfaces.hasMoreElements()) {
+
+                for (int i = interfaces.size()-1; i >= 0; i--) {
                     try {
-                        NetworkInterface network = interfaces.nextElement();
+                        NetworkInterface network= interfaces.get(i);
                         // 如果网卡没启用，则继续。
                         if(!network.isUp())
                             continue;
@@ -84,6 +88,7 @@ public class NetworkTool {
                         logger.warn("Failed to retriving ip address, " + e.getMessage(), e);
                     }
                 }
+
             }
         } catch (Throwable e) {
             logger.warn("Failed to retriving ip address, " + e.getMessage(), e);

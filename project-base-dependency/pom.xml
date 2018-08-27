@@ -101,6 +101,11 @@
                 <artifactId>dubbo-spring-boot-starter</artifactId>
                 <version>0.1.1</version>
             </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>2.6.2</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -133,6 +138,41 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <!--<repositories>
+        <repository>
+            <id>maven-central</id>
+            <name>maven-central</name>
+            <url>http://192.168.2.101:8081/repository/maven-public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>gemfire-repository</id>
+            <name>Gemfire Repository</name>
+            <url>http://dist.gemstone.com/maven/release</url>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/libs-milestone</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <repository>
+            <id>maven-releases</id>
+            <name>maven-releases</name>
+            <url>http://192.168.2.101:8081/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>-->
 
     <repositories>
         <repository>
