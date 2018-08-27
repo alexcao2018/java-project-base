@@ -14,16 +14,23 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
 public class CriteriaInterceptor implements Interceptor {
+
+    private ConcurrentHashMap<String, List<ParameterMapping>> byCriteriaConcurrentHashMap = new ConcurrentHashMap<>();
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -44,6 +51,7 @@ public class CriteriaInterceptor implements Interceptor {
         /*   处理mapper文件中以byCriteria 结尾的方法
          -------------------------------------------------------------- */
         if (byCriteriaAnnotation != null) {
+
             BoundSql boundSql = statementHandler.getBoundSql();
             Map<String, Object> params = (Map<String, Object>) boundSql.getParameterObject();
             Criteria criteria = (Criteria) params.get("criteria");
@@ -56,10 +64,33 @@ public class CriteriaInterceptor implements Interceptor {
             }
 
             String criteriaSql = " select " + criteria.getProjectionSqlString() + " from ( " + sql + ") __t__ " + criteria.repalceParameter2PlaceHolder();
-            for (String parameter : criteria.getParameterCollection()) {
-                ParameterMapping parameterMapping = new ParameterMapping.Builder(mappedStatement.getConfiguration(), parameter.substring(2, parameter.length() - 1), Object.class).build();
-                boundSql.getParameterMappings().add(parameterMapping);
+
+            if (criteria.getParameterCollection().size() > 0) {
+                if (!byCriteriaConcurrentHashMap.containsKey(criteriaSql)) {
+                    synchronized (boundSql) {
+                        if (!byCriteriaConcurrentHashMap.containsKey(criteriaSql)) {
+                            List<ParameterMapping> originalParameterMappingCollection = boundSql.getParameterMappings();
+                            List<ParameterMapping> newParameterMappingCollection = new ArrayList<>();
+                            newParameterMappingCollection.addAll(originalParameterMappingCollection);
+
+                            for (String parameter : criteria.getParameterCollection()) {
+                                String parameterName = parameter.substring(2, parameter.length() - 1);
+                                ParameterMapping parameterMapping = new ParameterMapping.Builder(mappedStatement.getConfiguration(), parameterName, Object.class).build();
+                                newParameterMappingCollection.add(parameterMapping);
+                            }
+
+                            Field parameterMappingsField = boundSql.getClass().getDeclaredField("parameterMappings");
+                            setFinal(boundSql, parameterMappingsField, newParameterMappingCollection);
+                            byCriteriaConcurrentHashMap.put(criteriaSql,newParameterMappingCollection);
+                        }
+                    }
+                }else{
+                    List<ParameterMapping> parameterMappingCollection = byCriteriaConcurrentHashMap.get(criteriaSql);
+                    Field parameterMappingsField = boundSql.getClass().getDeclaredField("parameterMappings");
+                    setFinal(boundSql, parameterMappingsField, parameterMappingCollection);
+                }
             }
+
             metaObject.setValue("delegate.boundSql.sql", criteriaSql);
 
             if (pageInfo != null) {
@@ -74,11 +105,20 @@ public class CriteriaInterceptor implements Interceptor {
             PageInfo pageInfo = (PageInfo) params.get("pageInfo");
             String sql = boundSql.getSql();
             String countSql = sql.replaceFirst("\\*", "count(*)");
-            countSql = countSql.substring(0,countSql.indexOf("limit"));
+            countSql = countSql.substring(0, countSql.indexOf("limit"));
             pageInfo.setTotalCount(selectCount(invocation, metaObject, countSql));
         }
 
         return invocation.proceed();
+    }
+
+    private static void setFinal(Object object, Field field, Object newValue) throws Exception {
+        field.setAccessible(true);
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+
+        field.set(object, newValue);
     }
 
     private long selectCount(Invocation invocation, MetaObject metaObject, String sql) throws SQLException {
