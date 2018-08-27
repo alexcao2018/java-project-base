@@ -27,8 +27,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         CommonResponse response = new CommonResponse();
         response.setError(999);
         StringBuilder message = new StringBuilder(ex.getMessage());
-        for (StackTraceElement e:ex.getStackTrace()) {
-            message.append(e+"\n");
+        for (StackTraceElement e : ex.getStackTrace()) {
+            message.append(System.getProperty("line.separator"));
+            message.append(e);
         }
         response.setMessage(message.toString());
         return response;
