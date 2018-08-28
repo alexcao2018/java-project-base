@@ -6,24 +6,19 @@ public class PageRequest implements Serializable {
     private int pageIndex;
     private int pageSize;
 
-    public PageRequest(int pageIndex, int pageSize) {
-        this.pageIndex = pageIndex;
-        this.pageSize = pageSize;
-    }
-
-    public void setPageIndex(int pageIndex){
+    public void setPageIndex(int pageIndex) {
         this.pageIndex = pageIndex;
     }
 
-    public int getPageIndex(){
+    public int getPageIndex() {
         return this.pageIndex;
     }
 
-    public void setPageSize(int pageSize){
+    public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
 
-    public int getPageSize(){
+    public int getPageSize() {
         return this.pageSize;
     }
 }
