@@ -11,7 +11,7 @@ public class PagedList<T> implements Serializable {
 
     private Integer pageSize;
 
-    private Integer totalCount;
+    private Long totalCount;
 
     private Integer totalPages;
 
@@ -43,11 +43,11 @@ public class PagedList<T> implements Serializable {
         this.pageSize = pageSize;
     }
 
-    public Integer getTotalCount() {
+    public Long getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(Integer totalCount) {
+    public void setTotalCount(Long totalCount) {
         this.totalCount = totalCount;
     }
 
@@ -73,5 +73,17 @@ public class PagedList<T> implements Serializable {
 
     public void setHasNextPage(Boolean hasNextPage) {
         this.hasNextPage = hasNextPage;
+    }
+
+    public static <T> PagedList success(PageInfo pageInfo,List<T> object){
+        PagedList pagedList = new PagedList();
+        pagedList.setSourceData(object);
+        pagedList.setPageIndex(pageInfo.getPageNum());
+        pagedList.setPageSize(pageInfo.getPageSize());
+        pagedList.setTotalCount(pageInfo.getTotalCount());
+        pagedList.setTotalPages(pageInfo.getTotalPages());
+        pagedList.setHasNextPage(pageInfo.hasNext());
+        pagedList.setHasPreviousPage(pageInfo.hasPrevious());
+        return pagedList;
     }
 }
