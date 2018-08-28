@@ -49,6 +49,9 @@ public class PageInfo implements Serializable {
         return this.pageNum < getTotalPages() - 1;
     }
 
+    public boolean hasPrevious() {
+        return this.pageNum > 0;
+    }
 
     @Override
     public String toString() {
