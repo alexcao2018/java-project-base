@@ -27,6 +27,8 @@ public class Criteria implements Serializable {
     }
 
     public Criteria add(Criterion expression) {
+        if(expression==null)
+            return this;
         criterionEntries.add(expression);
         return this;
     }

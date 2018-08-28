@@ -78,7 +78,6 @@ public class DubboMojo extends AbstractMojo {
 
     public void execute() throws MojoExecutionException {
 
-
         try {
             List<String> compileClasspathElements = project.getCompileClasspathElements();
             URL[] runtimeUrls = new URL[compileClasspathElements.size()];

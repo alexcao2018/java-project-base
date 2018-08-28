@@ -12,11 +12,20 @@ public class Junction implements Criterion {
     private List<Criterion> conditions = new ArrayList<>();
 
     protected Junction(Nature nature, Criterion... criterion) {
+
+        for (Criterion criterionItem : criterion) {
+            if(criterionItem==null)
+                continue;
+            conditions.add(criterionItem);
+        }
+
         this.nature = nature;
-        Collections.addAll(conditions, criterion);
     }
 
     public Junction add(Criterion criterion) {
+        if(criterion==null)
+            return this;
+
         conditions.add(criterion);
         return this;
     }
