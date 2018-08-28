@@ -8,21 +8,17 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
-@EnableWebMvc
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public CommonResponse handleFileException(HttpServletRequest request, Throwable ex) {
-        //TODO
+    public CommonResponse handleException(HttpServletRequest request, Throwable ex) {
         logger.error(ex.getMessage(), ex);
         CommonResponse response = new CommonResponse();
         response.setError(999);
