@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.util.Date;
 
+/**
+ * 此converter 只在form提交的时候才启作用，
+ * content-type:application/json 方式 不生效
+ */
 public class StringToDateConverter
         implements Converter<String, Date> {
 
@@ -14,7 +18,7 @@ public class StringToDateConverter
     public Date convert(String source) {
         Date result = null;
         try {
-            result = DateUtils.parseDate(source, "yyyy-MM-dd hh:mm:ss", "yyyy-MM-dd");
+            result = DateUtils.parseDate(source, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd");
         } catch (ParseException e) {
             e.printStackTrace();
         }
