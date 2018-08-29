@@ -1,9 +1,7 @@
 package com.project.base.common.security;
 
-import com.project.base.common.enums.EncodeFormatEnum;
+import com.project.base.common.enums.EnumEncodeFormat;
 import com.project.base.common.lang.string.EncodeTool;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +14,7 @@ public class HashTool {
 
     private static final Logger logger = LoggerFactory.getLogger(HashTool.class);
 
-    public static String sha256(String input, EncodeFormatEnum returnEncodeFormat) {
+    public static String sha256(String input, EnumEncodeFormat returnEncodeFormat) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] bytes = digest.digest(input.getBytes());
@@ -27,7 +25,7 @@ public class HashTool {
         return null;
     }
 
-    public static String hmacSha256(String input, String secretKey,EncodeFormatEnum returnEncodeFormat) {
+    public static String hmacSha256(String input, String secretKey, EnumEncodeFormat returnEncodeFormat) {
         try {
             Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
@@ -41,10 +39,10 @@ public class HashTool {
     }
 
 
-    private static String encode(byte[] byteArray,EncodeFormatEnum returnEncodeFormat){
-        if (returnEncodeFormat.equals(EncodeFormatEnum.Hex))
+    private static String encode(byte[] byteArray, EnumEncodeFormat returnEncodeFormat){
+        if (returnEncodeFormat.equals(EnumEncodeFormat.Hex))
             return EncodeTool.encodeHex(byteArray);
-        else if(returnEncodeFormat.equals(EncodeFormatEnum.Base64))
+        else if(returnEncodeFormat.equals(EnumEncodeFormat.Base64))
             return EncodeTool.encodeBase64(byteArray);
 
         return null;

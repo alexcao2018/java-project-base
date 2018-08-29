@@ -12,6 +12,11 @@
     <name>project-base-model</name>
 
     <dependencies>
+        <dependency>
+            <groupId>com.project.base</groupId>
+            <artifactId>project-base-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
