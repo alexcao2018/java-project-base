@@ -43,6 +43,25 @@ public class Criteria implements Serializable {
         return this;
     }
 
+    public Criteria addOrder(String orderProperty, String orderDirection) {
+        if (orderProperty == null || orderProperty.isEmpty() || orderDirection == null || orderDirection.isEmpty()) {
+            return this;
+        }
+        String[] orderProperties = orderProperty.split("#");
+        String[] orderDirections = orderDirection.split("#");
+        int length = orderProperties.length;
+        int direcLength = orderDirections.length;
+        for(int i = 0; i < length; i++) {
+            String property = orderProperties[i];
+            if (i > direcLength - 1) {
+                break;
+            }
+            String direction = orderDirections[i];
+            orderEntries.add(new Order(property, direction.equals("1")));
+        }
+        return this;
+    }
+
     public Criteria setProjection(String... projectionCollection) {
         this.projectionCollection = Arrays.asList(projectionCollection);
         return this;
