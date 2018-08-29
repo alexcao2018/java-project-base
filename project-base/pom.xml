@@ -14,8 +14,8 @@
         <module>project-base-model</module>
         <module>project-base-biz</module>
         <module>project-base-web</module>
-        <module>project-base-plugin</module>
         <module>project-base-dubbo</module>
+        <module>project-base-plugin</module>
     </modules>
     <name>project-base</name>
 
