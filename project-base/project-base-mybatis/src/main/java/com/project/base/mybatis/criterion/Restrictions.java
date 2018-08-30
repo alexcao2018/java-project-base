@@ -82,6 +82,11 @@ public class Restrictions {
         return new InExpression(propertyName, values.toArray());
     }
 
+    public static Criterion notIn(String propertyName, Object... values) {
+        return new NotInExpression(propertyName, values);
+    }
+
+
     public static Criterion isNull(String propertyName) {
         return new NullExpression(propertyName);
     }
