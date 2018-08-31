@@ -1,10 +1,15 @@
 package com.project.base.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 public class CommonResponse<T> implements Serializable {
+    @JsonProperty("Error")
     private Integer error;
+    @JsonProperty("Message")
     private String message;
+    @JsonProperty("Data")
     private T data;
 
     public Integer getError() {
