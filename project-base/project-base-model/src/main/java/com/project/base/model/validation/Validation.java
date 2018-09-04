@@ -69,7 +69,7 @@ public class Validation {
         Required requiredAnnotation = field.getAnnotation(Required.class);
         if (requiredAnnotation != null) {
             if (fieldValue == null || fieldValue.toString().matches(RegularExpression.Blank)) {
-                errorCollection.add(MessageFormat.format(errorFormat, fieldName, requiredAnnotation.value()));
+                errorCollection.add(requiredAnnotation.value());
                 return errorCollection;
             }
         }
