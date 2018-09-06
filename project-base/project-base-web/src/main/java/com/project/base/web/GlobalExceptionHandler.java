@@ -16,6 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ *  @EnableWebMvc 加此标记，覆盖springboot 默认处理异常配置
+ *  如果为404 400 此类请求，未进入到action 内部，无法匹配异常
+ *  需要设置dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
+ */
 @ControllerAdvice
 @EnableWebMvc
 public class GlobalExceptionHandler {
