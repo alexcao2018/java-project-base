@@ -11,14 +11,36 @@ import java.util.List;
 
 public class Validation {
 
+    /**
+     *
+     * @param object 验证对象
+     * @param ignoreField 忽略字段
+     * @param <T>
+     * @return
+     */
     public static <T> List<String> check(T object, String... ignoreField) {
         return check(object, null, Arrays.asList(ignoreField));
     }
 
+    /**
+     *
+     * @param object 验证对象
+     * @param functionValidation 自定义验证接口
+     * @param <T>
+     * @return
+     */
     public static <T> List<String> check(T object, IValidation<T>... functionValidation) {
         return check(object, Arrays.asList(functionValidation), null);
     }
 
+    /**
+     *
+     * @param object 验证对象
+     * @param functionValidationCollection 自定义验证接口
+     * @param ignoreFieldCollection 忽略字段
+     * @param <T>
+     * @return
+     */
     public static <T> List<String> check(T object, List<IValidation<T>> functionValidationCollection, List<String> ignoreFieldCollection) {
 
         List<String> errorCollection = new ArrayList<>();

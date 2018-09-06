@@ -2,18 +2,13 @@ package com.project.base.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.base.web.convert.StringToDateConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.bind.support.ConfigurableWebBindingInitializer;
 import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
-
-import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,4 +50,6 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
         return mappingJackson2HttpMessageConverter;
 
     }
+
+
 }
