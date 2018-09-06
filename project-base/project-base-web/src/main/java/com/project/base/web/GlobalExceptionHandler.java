@@ -8,21 +8,27 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @ControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+@EnableWebMvc
+public class GlobalExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler({Exception.class})
     @ResponseBody
-    public CommonResponse handleException(HttpServletRequest request, Throwable ex) {
+    public CommonResponse handleException(Throwable ex) throws IOException {
         logger.error(ex.getMessage(), ex);
         CommonResponse response = new CommonResponse();
         response.setError(999);
-        StringBuilder message = new StringBuilder(ex.getMessage());
+        StringBuilder message = new StringBuilder();
+        message.append(ex.getMessage());
         for (StackTraceElement e : ex.getStackTrace()) {
             message.append(System.getProperty("line.separator"));
             message.append(e);
@@ -30,4 +36,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         response.setMessage(message.toString());
         return response;
     }
+
 }

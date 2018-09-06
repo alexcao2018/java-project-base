@@ -4,6 +4,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.DispatcherServlet;
 
 @Component
 public class ApplicationContextProvider implements ApplicationContextAware {
@@ -12,6 +13,7 @@ public class ApplicationContextProvider implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         ApplicationContextProvider.applicationContext = applicationContext;
+        init();
     }
 
     public static ApplicationContext getContext() {
@@ -20,6 +22,11 @@ public class ApplicationContextProvider implements ApplicationContextAware {
 
     public static <T> T getBean(Class<T> cls) {
         return applicationContext.getBean(cls);
+    }
+
+    private void init(){
+        DispatcherServlet dispatcherServlet = getBean(DispatcherServlet.class);
+        dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
     }
 
 

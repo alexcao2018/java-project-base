@@ -16,6 +16,7 @@ import java.util.TimeZone;
 
 @Configuration
 public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         super.addInterceptors(registry);
