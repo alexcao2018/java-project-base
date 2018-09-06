@@ -22,7 +22,6 @@ import java.io.IOException;
  *  需要设置dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
  */
 @ControllerAdvice
-@EnableWebMvc
 public class GlobalExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
