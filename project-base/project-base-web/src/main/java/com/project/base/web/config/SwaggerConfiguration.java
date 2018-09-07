@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-public class SwaggerConfiguration {
+public class SwaggerConfiguration extends WebMvcConfigurerAdapter{
 
     @Value("${swagger.basePackage:}")
     private String basePackage;
@@ -29,6 +29,17 @@ public class SwaggerConfiguration {
                 .apis(RequestHandlerSelectors.basePackage(basePackage))
                 .paths(PathSelectors.ant("/**"))
                 .build();
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        if (StringUtils.isBlank(basePackage))
+            return;
+        registry.addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
 

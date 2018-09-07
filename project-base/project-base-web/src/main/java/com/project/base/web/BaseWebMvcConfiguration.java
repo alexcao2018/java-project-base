@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
 import java.text.SimpleDateFormat;
@@ -19,10 +18,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 @Configuration
-public class BaseWebMvcConfiguration extends WebMvcConfigurationSupport {
-
-    @Value("${swagger.basePackage:}")
-    private String swaggerBasePackage;
+public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -49,12 +45,12 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurationSupport {
      *
      * @param exceptionResolvers
      */
-    @Override
+   /* @Override
     public void extendHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
+        exceptionResolvers.clear();
         exceptionResolvers.add(0, new GlobalExceptionResolver());
     }
-
-
+*/
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
 
@@ -80,16 +76,5 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurationSupport {
             mappingJackson2HttpMessageConverter.setSupportedMediaTypes(list);
             converters.add(mappingJackson2HttpMessageConverter);
         }
-    }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        if (StringUtils.isBlank(swaggerBasePackage))
-            return;
-        registry.addResourceHandler("swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
-
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 }
