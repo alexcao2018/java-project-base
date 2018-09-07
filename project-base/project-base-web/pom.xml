@@ -48,7 +48,7 @@
         <dependency>
             <groupId>com.project.base</groupId>
             <artifactId>project-base-model</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
