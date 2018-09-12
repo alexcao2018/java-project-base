@@ -6,7 +6,7 @@
 
     <groupId>com.project.base</groupId>
     <artifactId>project-base-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>project-base-parent</name>
     <packaging>pom</packaging>
 
@@ -90,7 +90,7 @@
         <repository>
             <id>nexus</id>
             <name>central</name>
-            <url>http://sy-suz-dev-ci.suiyi.com.cn:8081/nexus/content/groups/public/</url>
+            <url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-public/</url>
             <layout>default</layout>
             <releases>
                 <enabled>true</enabled>
@@ -106,15 +106,13 @@
     </repositories>
 
     <distributionManagement>
-        <repository>
-            <!--    这里的ID要和setting的id一致-->
-            <id>releases</id>
-            <url>http://sy-suz-dev-ci.suiyi.com.cn:8081/nexus/content/repositories/releases/</url>
-        </repository>
         <snapshotRepository>
-            <!--    这里的ID要和setting的id一致-->
-            <id>snapshots</id>
-            <url>http://sy-suz-dev-ci.suiyi.com.cn:8081/nexus/content/repositories/snapshots/</url>
+            <id>shihang-snapshots</id>
+            <url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-snapshots/</url>
         </snapshotRepository>
+        <repository>
+            <id>shihang-releases</id>
+            <url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-releases/</url>
+        </repository>
     </distributionManagement>
 </project>
