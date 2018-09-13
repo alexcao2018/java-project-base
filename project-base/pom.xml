@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.project.base</groupId>
         <artifactId>project-base-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.project.base</groupId>
@@ -30,7 +30,7 @@
             <dependency>
                 <groupId>com.project.base</groupId>
                 <artifactId>project-base-dependency</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
