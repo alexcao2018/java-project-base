@@ -14,6 +14,16 @@ public class Validation {
     /**
      *
      * @param object 验证对象
+     * @param <T>
+     * @return
+     */
+    public static <T> List<String> check(T object) {
+        return check(object, "");
+    }
+
+    /**
+     *
+     * @param object 验证对象
      * @param ignoreField 忽略字段
      * @param <T>
      * @return
