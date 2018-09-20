@@ -44,7 +44,7 @@ public class Criteria implements Serializable {
     }
 
     public Criteria addOrder(String orderProperty, String orderDirection) {
-        if (orderProperty == null || orderProperty.isEmpty() || orderDirection == null || orderDirection.isEmpty()) {
+        if (StringUtils.isEmpty(orderProperty) || StringUtils.isEmpty(orderDirection)) {
             return this;
         }
         String[] orderProperties = orderProperty.split("#");
