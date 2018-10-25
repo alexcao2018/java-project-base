@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class MybatisConfiguration {
+public class MybatisConfig {
     @Bean
     CriteriaInterceptor criteriaInterceptor() {
         return new CriteriaInterceptor();
