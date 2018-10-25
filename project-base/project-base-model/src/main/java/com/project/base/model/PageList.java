@@ -1,25 +1,22 @@
 package com.project.base.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 import java.util.List;
 
 public class PageList<T> implements Serializable {
 
-    @JsonProperty("SourceData")
     private List<T> sourceData;
-    @JsonProperty("PageIndex")
+
     private Integer pageIndex;
-    @JsonProperty("PageSize")
+
     private Integer pageSize;
-    @JsonProperty("TotalCount")
+
     private Long totalCount;
-    @JsonProperty("TotalPages")
+
     private Integer totalPages;
-    @JsonProperty("HasPreviousPage")
+
     private Boolean hasPreviousPage;
-    @JsonProperty("HasNextPage")
+
     private Boolean hasNextPage;
 
     public List<T> getSourceData() {
@@ -78,7 +75,7 @@ public class PageList<T> implements Serializable {
         this.hasNextPage = hasNextPage;
     }
 
-    public static <T> PageList success(PageInfo pageInfo, List<T> object){
+    public static <T> PageList success(PageInfo pageInfo, List<T> object) {
         PageList pagedList = new PageList();
         pagedList.setSourceData(object);
         pagedList.setPageIndex(pageInfo.getPageNum());
