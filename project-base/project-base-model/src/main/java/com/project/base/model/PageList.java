@@ -75,7 +75,7 @@ public class PageList<T> implements Serializable {
         this.hasNextPage = hasNextPage;
     }
 
-    public static <T> PageList success(PageInfo pageInfo, List<T> object){
+    public static <T> PageList success(PageInfo pageInfo, List<T> object) {
         PageList pagedList = new PageList();
         pagedList.setSourceData(object);
         pagedList.setPageIndex(pageInfo.getPageNum());
