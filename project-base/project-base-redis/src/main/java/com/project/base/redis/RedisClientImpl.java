@@ -24,6 +24,7 @@ public class RedisClientImpl implements RedisClient {
      * @param timeout 秒为单位
      * @return
      */
+    @Override
     public boolean expire(String key, int timeout) {
         return redisTemplate.expire(key, timeout, TimeUnit.SECONDS);
     }
@@ -34,6 +35,7 @@ public class RedisClientImpl implements RedisClient {
      * @param key
      * @return
      */
+    @Override
     public boolean hasKey(String key) {
         return redisTemplate.hasKey(key);
     }
@@ -45,6 +47,7 @@ public class RedisClientImpl implements RedisClient {
      * @param <T>
      * @return
      */
+    @Override
     public <T> T get(String key) {
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
         Object object = valueOperations.get(key);
@@ -58,6 +61,7 @@ public class RedisClientImpl implements RedisClient {
      * @param value
      * @return
      */
+    @Override
     public boolean set(String key, Object value) {
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
         valueOperations.set(key, value);
@@ -201,10 +205,10 @@ public class RedisClientImpl implements RedisClient {
      * @return
      */
     @Override
-    public boolean hDel(String key, Object... hashKeys) {
+    public long hDel(String key, Object... hashKeys) {
         HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
-        hash.delete(key, hashKeys);
-        return true;
+        long result = hash.delete(key, hashKeys);
+        return result;
     }
 
     /**
@@ -236,29 +240,50 @@ public class RedisClientImpl implements RedisClient {
     }
 
     /**
+     * 从左面向列表push 元素
      * @param key
      * @param value
      * @return
      */
     @Override
-    public boolean lLeftPush(String key, Object value) {
+    public long lLeftPush(String key, Object value) {
         return lLeftPush(key, value, null);
     }
 
+    /**
+     * 从左面向列表push 元素 以及过期时间，秒为单位
+     * @param key
+     * @param value
+     * @param timeout
+     * @return
+     */
     @Override
-    public boolean lLeftPush(String key, Object value, Integer timeout) {
+    public long lLeftPush(String key, Object value, Integer timeout) {
         ListOperations<String, Object> listOperations = redisTemplate.opsForList();
-        listOperations.leftPush(key, value);
+        long result = listOperations.leftPush(key, value);
         if (timeout != null)
             expire(key, timeout);
-        return true;
+        return result;
     }
 
+    /**
+     * 从左面向列表push 元素
+     * @param key
+     * @param values
+     * @return
+     */
     @Override
     public long lLeftPush(String key, Object... values) {
         return lLeftPush(key, null, values);
     }
 
+    /**
+     * 从左面向列表push 元素 以及过期时间，秒为单位
+     * @param key
+     * @param timeout
+     * @param values
+     * @return
+     */
     @Override
     public long lLeftPush(String key, Integer timeout, Object... values) {
         ListOperations<String, Object> listOperations = redisTemplate.opsForList();
@@ -268,32 +293,58 @@ public class RedisClientImpl implements RedisClient {
         return result;
     }
 
+    /**
+     * 从右面向列表push 元素 以及过期时间
+     * @param key
+     * @param value
+     * @return
+     */
     @Override
-    public boolean lRightPush(String key, Object value) {
+    public long lRightPush(String key, Object value) {
         return lRightPush(key, value, null);
     }
 
+    /**
+     * 从右面向列表push 元素 以及过期时间，秒为单位
+     * @param key
+     * @param value
+     * @param timeout
+     * @return
+     */
     @Override
-    public boolean lRightPush(String key, Object value, Integer timeout) {
+    public long lRightPush(String key, Object value, Integer timeout) {
         ListOperations<String, Object> listOperations = redisTemplate.opsForList();
-        listOperations.rightPush(key, value);
+        long result = listOperations.rightPush(key, value);
         if (timeout != null)
             expire(key, timeout);
-        return true;
+        return result;
     }
 
+    /**
+     * 从右面向列表push 元素
+     * @param key
+     * @param values
+     * @return
+     */
     @Override
-    public boolean lRightPush(String key, Object... values) {
+    public long lRightPush(String key, Object... values) {
         return lRightPush(key, null, values);
     }
 
+    /**
+     * 从右面向列表push 元素 以及过期时间，秒为单位
+     * @param key
+     * @param timeout
+     * @param values
+     * @return
+     */
     @Override
-    public boolean lRightPush(String key, Integer timeout, Object... values) {
+    public long lRightPush(String key, Integer timeout, Object... values) {
         ListOperations<String, Object> listOperations = redisTemplate.opsForList();
-        listOperations.rightPushAll(key, values);
+        long result = listOperations.rightPushAll(key, values);
         if (timeout != null)
             expire(key, timeout);
-        return true;
+        return result;
     }
 
     @Override

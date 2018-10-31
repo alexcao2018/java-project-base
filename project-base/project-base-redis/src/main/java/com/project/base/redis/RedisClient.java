@@ -8,37 +8,65 @@ import java.util.Map;
 import java.util.Set;
 
 public interface RedisClient {
+
+    /** 通用数据类型接口
+    -------------------------------------------
+     */
     boolean set(String key, Object value);
-    boolean set(String key, Object value,int timeout);
+
+    boolean set(String key, Object value, int timeout);
+
+    boolean del(String... key);
+
+    boolean expire(String key, int timeout);
+
+    boolean hasKey(String key);
+
+    <T> T get(String key);
+
+    /** hash 数据类型接口
+    -------------------------------------------
+     */
 
     boolean hSet(String key, Object hashKey, Object value);
-    boolean hSet(String key, Map<Object,Object> map);
-    boolean hSet(String key, Object hashKey, Object value,Integer timeout);
-    boolean hSet(String key, Map<Object,Object> map,Integer timeout);
+
+    boolean hSet(String key, Map<Object, Object> map);
+
+    boolean hSet(String key, Object hashKey, Object value, Integer timeout);
+
+    boolean hSet(String key, Map<Object, Object> map, Integer timeout);
 
     <T> T hGet(String key, Object hashKey);
-    Map<Object,Object> hGetAll(String key);
+
+    Map<Object, Object> hGetAll(String key);
+
     List<Object> hGetMultiple(String key, Object... hashKeys);
 
-    boolean hDel(String key, Object... hashKeys);
+    long hDel(String key, Object... hashKeys);
+
     boolean hExists(String key, Object hashKey);
+
     Set<Object> hKeys(String key);
 
-    boolean lLeftPush(String key, Object value);
+    /** 列表 数据类型接口
+    -------------------------------------------
+     */
 
-    boolean lLeftPush(String key, Object value, Integer timeout);
+    long lLeftPush(String key, Object value);
+
+    long lLeftPush(String key, Object value, Integer timeout);
 
     long lLeftPush(String key, Object... values);
 
     long lLeftPush(String key, Integer timeout, Object... values);
 
-    boolean lRightPush(String key, Object value);
+    long lRightPush(String key, Object value);
 
-    boolean lRightPush(String key, Object value, Integer timeout);
+    long lRightPush(String key, Object value, Integer timeout);
 
-    boolean lRightPush(String key, Object... values);
+    long lRightPush(String key, Object... values);
 
-    boolean lRightPush(String key, Integer timeout, Object... values);
+    long lRightPush(String key, Integer timeout, Object... values);
 
     <T> T lLeftPop(String key);
 
@@ -50,13 +78,13 @@ public interface RedisClient {
 
     long lSize(String key);
 
-    boolean del(String... key);
-
-    <T> T get(String key) ;
-
     long lDel(String key, long count, Object value);
 
     boolean lTrim(String key, long start, long end);
+
+    /** set 数据类型接口
+     -------------------------------------------
+     */
 
     boolean sAdd(String key, Object... values);
 
@@ -78,10 +106,16 @@ public interface RedisClient {
 
     boolean sIsMember(String key, Object object);
 
+    /** sorted set 数据类型接口
+     -------------------------------------------
+     */
+
     long zAdd(String key, Set<ZSetOperations.TypedTuple<Object>> tuples);
+
     long zAdd(String key, Integer timeout, Set<ZSetOperations.TypedTuple<Object>> tuples);
 
     boolean zAdd(String key, Object value, double score);
+
     boolean zAdd(String key, Integer timeout, Object value, double score);
 
     long zCount(String key, double min, double max);
