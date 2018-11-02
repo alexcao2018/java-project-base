@@ -55,7 +55,7 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
 
         boolean isSetMappingJackson2HttpMessageConverter = false;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
 
         for (HttpMessageConverter<?> httpMessageConverter : converters) {
