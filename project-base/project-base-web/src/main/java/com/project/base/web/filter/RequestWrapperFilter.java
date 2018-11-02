@@ -50,7 +50,7 @@ public class RequestWrapperFilter extends OncePerRequestFilter {
         if (HttpMethod.POST.name().equalsIgnoreCase(request.getMethod())) {
             httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());
         }
-        String httpRequestLog = MessageFormat.format("执行时间:{0},请求url:{1},请求体:{2}", milliSeconds, httpRequestUrl, StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
+        String httpRequestLog = MessageFormat.format("请求url:{1},执行时间:{0},请求体:{2}", milliSeconds, httpRequestUrl, StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
         logger.info(httpRequestLog);
     }
 }
