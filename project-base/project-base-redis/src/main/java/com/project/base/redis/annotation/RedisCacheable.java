@@ -9,6 +9,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RedisCacheable {
     String[] cacheNames() default {};
+
     String key() default "";
+
     String keyGenerator() default "";
+
+    int timeout() default 60;
 }

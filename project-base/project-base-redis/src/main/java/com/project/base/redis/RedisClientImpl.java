@@ -40,6 +40,11 @@ public class RedisClientImpl implements RedisClient {
         return redisTemplate.hasKey(key);
     }
 
+    @Override
+    public Set<String> keys(String pattern){
+        return redisTemplate.keys(pattern);
+    }
+
     /**
      * 获取key 对应的 value
      *

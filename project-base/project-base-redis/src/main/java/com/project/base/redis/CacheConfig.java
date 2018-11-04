@@ -40,7 +40,4 @@ public class CacheConfig extends CachingConfigurerSupport {
             }
         };
     }
-
-
-
 }

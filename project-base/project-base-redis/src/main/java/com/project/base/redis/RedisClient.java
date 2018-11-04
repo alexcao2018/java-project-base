@@ -22,6 +22,8 @@ public interface RedisClient {
 
     boolean hasKey(String key);
 
+    Set<String> keys(String pattern);
+
     <T> T get(String key);
 
     /** hash 数据类型接口
