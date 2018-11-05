@@ -46,6 +46,10 @@ public class RequestWrapperFilter extends OncePerRequestFilter {
         long milliSeconds = stopWatch.getTime(TimeUnit.MILLISECONDS);
 
         String httpRequestUrl = request.getRequestURL().toString();
+        if (StringUtils.isNotBlank(request.getQueryString())) {
+            httpRequestUrl = httpRequestUrl + "?" + request.getQueryString();
+        }
+
         String httpPostBody = StringUtils.EMPTY;
         if (HttpMethod.POST.name().equalsIgnoreCase(request.getMethod())) {
             httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());
