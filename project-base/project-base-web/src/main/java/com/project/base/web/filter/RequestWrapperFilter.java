@@ -32,6 +32,11 @@ public class RequestWrapperFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        if ("/".equals(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         StopWatch stopWatch = StopWatch.createStarted();
 
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
