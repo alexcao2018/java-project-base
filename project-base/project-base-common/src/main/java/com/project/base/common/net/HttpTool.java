@@ -22,7 +22,7 @@ public class HttpTool {
 
     private static final CloseableHttpClient client = HttpClients.createDefault();
 
-    public static final <T> T post(String uri, Map<String, String> params, Class<T> clazz)
+    public static final <T> T post(String uri, Map<String, Object> params, Class<T> clazz)
             throws IOException {
         CloseableHttpResponse response;
         HttpPost httpPost = new HttpPost(uri);
@@ -33,7 +33,7 @@ public class HttpTool {
         return MAPPER.readValue(EntityUtils.toString(httpEntity), clazz);
     }
 
-    private static StringEntity generatePostEntity(Map<String, String> params) throws JsonProcessingException {
+    private static StringEntity generatePostEntity(Map<String, Object> params) throws JsonProcessingException {
 
         String json = MAPPER.writeValueAsString(params);
         StringEntity stringEntity = new StringEntity(json, "UTF-8");
