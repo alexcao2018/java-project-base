@@ -8,10 +8,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.*;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,15 +58,24 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
 
         boolean isSetMappingJackson2HttpMessageConverter = false;
+        boolean isSetMappingStringHttpMessageConverter = false;
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
 
         for (HttpMessageConverter<?> httpMessageConverter : converters) {
-            if (httpMessageConverter.getClass() != MappingJackson2HttpMessageConverter.class)
-                continue;
-            MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = (MappingJackson2HttpMessageConverter) httpMessageConverter;
-            mappingJackson2HttpMessageConverter.getObjectMapper().setDateFormat(simpleDateFormat);
-            isSetMappingJackson2HttpMessageConverter = true;
+            if (httpMessageConverter.getClass() == MappingJackson2HttpMessageConverter.class) {
+                MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = (MappingJackson2HttpMessageConverter) httpMessageConverter;
+                mappingJackson2HttpMessageConverter.getObjectMapper().setDateFormat(simpleDateFormat);
+                isSetMappingJackson2HttpMessageConverter = true;
+            }
+
+            if (httpMessageConverter.getClass() == StringHttpMessageConverter.class) {
+                StringHttpMessageConverter stringHttpMessageConverter = (StringHttpMessageConverter) httpMessageConverter;
+                stringHttpMessageConverter.setDefaultCharset(StandardCharsets.UTF_8);
+                isSetMappingStringHttpMessageConverter = true;
+            }
+
         }
 
         if (!isSetMappingJackson2HttpMessageConverter) {
@@ -76,5 +88,11 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
             mappingJackson2HttpMessageConverter.setSupportedMediaTypes(list);
             converters.add(mappingJackson2HttpMessageConverter);
         }
+
+        if (!isSetMappingStringHttpMessageConverter) {
+            StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
+            converters.add(stringHttpMessageConverter);
+        }
+
     }
 }
