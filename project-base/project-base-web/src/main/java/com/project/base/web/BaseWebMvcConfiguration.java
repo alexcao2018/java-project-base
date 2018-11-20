@@ -2,8 +2,7 @@ package com.project.base.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.base.web.convert.StringToDateConverter;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
+import com.project.base.web.interceptor.LogInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
@@ -13,7 +12,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.*;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,7 +24,7 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         super.addInterceptors(registry);
-        registry.addInterceptor(new WebHandlerInterceptor());
+        registry.addInterceptor(new LogInterceptor());
     }
 
     @Override

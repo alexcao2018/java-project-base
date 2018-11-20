@@ -1,15 +1,18 @@
 package com.project.base.web.filter;
 
-import com.project.base.web.GlobalExceptionHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,10 +26,15 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @WebFilter(urlPatterns = "/*")
-public class RequestWrapperFilter extends OncePerRequestFilter {
+public class LogFilter extends OncePerRequestFilter {
 
     public static final String _KEY_CONTENT_CACHING_REQUEST_WRAPPER = "_KEY_CONTENT_CACHING_REQUEST_WRAPPER";
-    private static Logger logger = LoggerFactory.getLogger(RequestWrapperFilter.class);
+    public static final String _KEY_CONTENT_CACHING_RESPONSE_WRAPPER = "_KEY_CONTENT_CACHING_RESPONSE_WRAPPER";
+    private static Logger logger = LoggerFactory.getLogger(LogFilter.class);
+
+    /*@Autowired
+    @Qualifier("requestMappingHandlerMapping")
+    private RequestMappingHandlerMapping handlerMapping;*/
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -39,6 +47,8 @@ public class RequestWrapperFilter extends OncePerRequestFilter {
         StopWatch stopWatch = StopWatch.createStarted();
 
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
+        //ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
+
         request.setAttribute(_KEY_CONTENT_CACHING_REQUEST_WRAPPER, requestWrapper);
         filterChain.doFilter(requestWrapper, response);
 
@@ -47,6 +57,12 @@ public class RequestWrapperFilter extends OncePerRequestFilter {
         -------------------------------------------------------------------
          */
         stopWatch.stop();
+
+        /* 将response内容
+        -------------------------------------------------------------------
+         */
+        //responseWrapper.copyBodyToResponse();
+
         long milliSeconds = stopWatch.getTime(TimeUnit.MILLISECONDS);
 
         String httpRequestUrl = request.getRequestURL().toString();
@@ -58,7 +74,8 @@ public class RequestWrapperFilter extends OncePerRequestFilter {
         if (HttpMethod.POST.name().equalsIgnoreCase(request.getMethod())) {
             httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());
         }
-        String httpRequestLog = MessageFormat.format("请求url:{1},执行时间:{0},请求体:{2}", milliSeconds, httpRequestUrl, StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
+        String httpRequestLog = MessageFormat.format("{3},请求url:{1},执行时间:{0},请求体:{2}", milliSeconds, httpRequestUrl, StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody, request.getMethod());
         logger.info(httpRequestLog);
     }
+
 }

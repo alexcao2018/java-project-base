@@ -1,7 +1,7 @@
 package com.project.base.web;
 
 import com.project.base.model.CommonResponse;
-import com.project.base.web.filter.RequestWrapperFilter;
+import com.project.base.web.filter.LogFilter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -48,16 +48,19 @@ public class GlobalExceptionHandler {
     public CommonResponse handleException(Throwable ex) throws IOException {
 
         String httpRequestUrl = httpServletRequest.getRequestURL().toString();
+        if (StringUtils.isNotBlank(httpServletRequest.getQueryString())) {
+            httpRequestUrl = httpRequestUrl + "?" + httpServletRequest.getQueryString();
+        }
+
         String httpPostBody = StringUtils.EMPTY;
         if (HttpMethod.POST.name().equalsIgnoreCase(httpServletRequest.getMethod())) {
-            Object requestWrapperObject = httpServletRequest.getAttribute(RequestWrapperFilter._KEY_CONTENT_CACHING_REQUEST_WRAPPER);
-            if(requestWrapperObject!=null){
-                ContentCachingRequestWrapper requestWrapper=(ContentCachingRequestWrapper) requestWrapperObject;
+            Object requestWrapperObject = httpServletRequest.getAttribute(LogFilter._KEY_CONTENT_CACHING_REQUEST_WRAPPER);
+            if (requestWrapperObject != null) {
+                ContentCachingRequestWrapper requestWrapper = (ContentCachingRequestWrapper) requestWrapperObject;
                 httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());
             }
-
         }
-        String httpRequestLog = MessageFormat.format("请求url:{0},请求体:{1}", httpRequestUrl, StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
+        String httpRequestLog = MessageFormat.format("{0},请求url:{1},请求体:{2}", httpServletRequest.getMethod(), httpRequestUrl, StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
 
         logger.error(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
         CommonResponse response = new CommonResponse();
