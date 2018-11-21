@@ -107,6 +107,8 @@ public class LogFilter extends OncePerRequestFilter {
     private boolean isLogResponse(HttpServletRequest request) {
         try {
             HandlerExecutionChain handler = handlerMapping.getHandler(request);
+            if (handler == null)
+                return false;
             LogResponse logResponseAnnotation = ((HandlerMethod) handler.getHandler()).getMethod().getAnnotation(LogResponse.class);
             return logResponseAnnotation != null;
         } catch (Exception e) {
