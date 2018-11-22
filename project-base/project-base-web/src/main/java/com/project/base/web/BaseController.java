@@ -16,6 +16,4 @@ public class BaseController {
     public HttpServletRequest request;
     @Autowired
     public HttpServletResponse response;
-
-
 }

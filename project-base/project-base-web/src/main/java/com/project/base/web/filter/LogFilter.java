@@ -1,5 +1,7 @@
 package com.project.base.web.filter;
 
+import com.project.base.web.HttpRequestInfo;
+import com.project.base.web.annotation.LogRequest;
 import com.project.base.web.annotation.LogResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +39,9 @@ public class LogFilter extends OncePerRequestFilter {
 
     public static final String _KEY_CONTENT_CACHING_REQUEST_WRAPPER = "_KEY_CONTENT_CACHING_REQUEST_WRAPPER";
     public static final String _KEY_CONTENT_CACHING_RESPONSE_WRAPPER = "_KEY_CONTENT_CACHING_RESPONSE_WRAPPER";
+    public static final String _KEY_HTTP_REQUEST_INFO = "_KEY_HTTP_REQUEST_INFO";
+
+
     private static Logger logger = LoggerFactory.getLogger(LogFilter.class);
 
     @Autowired
@@ -61,7 +66,7 @@ public class LogFilter extends OncePerRequestFilter {
         if (isCacheResponse) {
             responseWrapper = new ContentCachingResponseWrapper(response);
             filterChain.doFilter(requestWrapper, responseWrapper);
-            responseContent = getResponseContent(responseWrapper);
+            responseContent = getResponseInfo(responseWrapper);
              /* 将response内容 copy到原来的流中
             -------------------------------------------------------------------
              */
@@ -75,30 +80,28 @@ public class LogFilter extends OncePerRequestFilter {
         -------------------------------------------------------------------
          */
         stopWatch.stop();
-
         long milliSeconds = stopWatch.getTime(TimeUnit.MILLISECONDS);
 
-        String httpRequestUrl = request.getRequestURL().toString();
-        if (StringUtils.isNotBlank(request.getQueryString())) {
-            httpRequestUrl = httpRequestUrl + "?" + request.getQueryString();
-        }
+        /* 记录请求信息
+        -------------------------------------------------------------------
+         */
+        HttpRequestInfo httpRequestInfo = getHttpRequestInfo(requestWrapper);
+        request.setAttribute(_KEY_HTTP_REQUEST_INFO, httpRequestInfo);
+        requestWrapper.setAttribute(_KEY_HTTP_REQUEST_INFO, httpRequestInfo);
 
-        String httpPostBody = StringUtils.EMPTY;
-        if (HttpMethod.POST.name().equalsIgnoreCase(request.getMethod())) {
-            httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());
-        }
         String httpRequestLog = StringUtils.EMPTY;
         if (isCacheResponse) {
-            httpRequestLog = MessageFormat.format("{3},请求url:{1},执行时间:{0},请求体:{2},请求响应:{4}"
+            httpRequestLog = MessageFormat.format("{3},请求url:{1},执行时间:{0}{2},请求响应:{4}"
                     , milliSeconds
-                    , httpRequestUrl
-                    , StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody, request.getMethod()
+                    , httpRequestInfo.getUrl()
+                    , StringUtils.isBlank(httpRequestInfo.getBody()) ? StringUtils.EMPTY : ",请求体:" + httpRequestInfo.getBody()
+                    , httpRequestInfo.getMethod()
                     , responseContent);
         } else {
-            httpRequestLog = MessageFormat.format("{3},请求url:{1},执行时间:{0},请求体:{2}"
+            httpRequestLog = MessageFormat.format("{3},请求url:{1},执行时间:{0}{2}"
                     , milliSeconds
-                    , httpRequestUrl
-                    , StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody
+                    , httpRequestInfo.getUrl()
+                    , StringUtils.isBlank(httpRequestInfo.getBody()) ? StringUtils.EMPTY : ",请求体:" + httpRequestInfo.getBody()
                     , request.getMethod());
         }
         logger.info(httpRequestLog);
@@ -110,14 +113,46 @@ public class LogFilter extends OncePerRequestFilter {
             if (handler == null)
                 return false;
             LogResponse logResponseAnnotation = ((HandlerMethod) handler.getHandler()).getMethod().getAnnotation(LogResponse.class);
-            return logResponseAnnotation != null;
+            return logResponseAnnotation != null && logResponseAnnotation.value();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         return false;
     }
 
-    private String getResponseContent(ContentCachingResponseWrapper responseWrapper) {
+    private boolean isLogRequest(HttpServletRequest request) {
+        try {
+            HandlerExecutionChain handler = handlerMapping.getHandler(request);
+            if (handler == null)
+                return false;
+            LogRequest logRequestAnnotation = ((HandlerMethod) handler.getHandler()).getMethod().getAnnotation(LogRequest.class);
+            return logRequestAnnotation != null && logRequestAnnotation.value();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return true;
+    }
+
+    private HttpRequestInfo getHttpRequestInfo(ContentCachingRequestWrapper requestWrapper) throws IOException {
+        String httpRequestUrl = requestWrapper.getRequestURL().toString();
+        if (StringUtils.isNotBlank(requestWrapper.getQueryString())) {
+            httpRequestUrl = httpRequestUrl + "?" + requestWrapper.getQueryString();
+        }
+
+        String httpPostBody = StringUtils.EMPTY;
+        if (HttpMethod.POST.name().equalsIgnoreCase(requestWrapper.getMethod())) {
+            httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());
+        }
+
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
+        httpRequestInfo.setBody(httpPostBody);
+        httpRequestInfo.setMethod(requestWrapper.getMethod());
+        httpRequestInfo.setUrl(httpRequestUrl);
+
+        return httpRequestInfo;
+    }
+
+    private String getResponseInfo(ContentCachingResponseWrapper responseWrapper) {
         try {
             int statusCode = responseWrapper.getStatusCode();
             return "状态码:" + statusCode + ",响应内容:" + new String(responseWrapper.getContentAsByteArray(), StandardCharsets.UTF_8);
