@@ -17,6 +17,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
@@ -51,6 +52,7 @@ public class GlobalExceptionHandler {
         if (StringUtils.isNotBlank(httpServletRequest.getQueryString())) {
             httpRequestUrl = httpRequestUrl + "?" + httpServletRequest.getQueryString();
         }
+        httpRequestUrl = URLDecoder.decode(httpRequestUrl, StandardCharsets.UTF_8.name());
 
         String httpPostBody = StringUtils.EMPTY;
         if (HttpMethod.POST.name().equalsIgnoreCase(httpServletRequest.getMethod())) {
@@ -60,7 +62,10 @@ public class GlobalExceptionHandler {
                 httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());
             }
         }
-        String httpRequestLog = MessageFormat.format("{0},请求url:{1},请求体:{2}", httpServletRequest.getMethod(), httpRequestUrl, StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
+        String httpRequestLog = MessageFormat.format("{0},请求url:{1},请求体:{2}",
+                httpServletRequest.getMethod()
+                , httpRequestUrl
+                , StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
 
         logger.error(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
         CommonResponse response = new CommonResponse();
