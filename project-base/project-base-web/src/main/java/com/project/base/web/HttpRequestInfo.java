@@ -1,9 +1,13 @@
 package com.project.base.web;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
+import java.text.MessageFormat;
 
 public class HttpRequestInfo implements Serializable {
     private String url;
+    private String uri;
     private String method;
     private String body;
 
@@ -29,5 +33,24 @@ public class HttpRequestInfo implements Serializable {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    @Override
+    public String toString() {
+
+        String requestInfo = MessageFormat.format("{0},请求url:{1},{2}"
+                , method
+                , url
+                , body);
+
+        return requestInfo;
     }
 }

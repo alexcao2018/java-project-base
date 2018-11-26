@@ -86,8 +86,6 @@ public class LogFilter extends OncePerRequestFilter {
         -------------------------------------------------------------------
          */
         HttpRequestInfo httpRequestInfo = getHttpRequestInfo(requestWrapper);
-        request.setAttribute(_KEY_HTTP_REQUEST_INFO, httpRequestInfo);
-        requestWrapper.setAttribute(_KEY_HTTP_REQUEST_INFO, httpRequestInfo);
 
         String httpRequestLog = StringUtils.EMPTY;
         if (isCacheResponse) {
@@ -133,7 +131,7 @@ public class LogFilter extends OncePerRequestFilter {
         return true;
     }
 
-    private HttpRequestInfo getHttpRequestInfo(ContentCachingRequestWrapper requestWrapper) throws IOException {
+    public static HttpRequestInfo getHttpRequestInfo(ContentCachingRequestWrapper requestWrapper) throws IOException {
         String httpRequestUrl = requestWrapper.getRequestURL().toString();
         if (StringUtils.isNotBlank(requestWrapper.getQueryString())) {
             httpRequestUrl = httpRequestUrl + "?" + requestWrapper.getQueryString();
