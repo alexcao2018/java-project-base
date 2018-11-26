@@ -28,6 +28,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.*;
@@ -145,7 +146,8 @@ public class LogFilter extends OncePerRequestFilter {
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo();
         httpRequestInfo.setBody(httpPostBody);
         httpRequestInfo.setMethod(requestWrapper.getMethod());
-        httpRequestInfo.setUrl(httpRequestUrl);
+        httpRequestInfo.setUrl(URLDecoder.decode(httpRequestUrl, StandardCharsets.UTF_8.name()));
+        httpRequestInfo.setUri(requestWrapper.getRequestURI());
 
         return httpRequestInfo;
     }
