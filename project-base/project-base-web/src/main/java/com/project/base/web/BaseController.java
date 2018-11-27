@@ -1,5 +1,6 @@
 package com.project.base.web;
 
+import com.project.base.model.net.HttpRequestInfo;
 import com.project.base.web.filter.LogFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

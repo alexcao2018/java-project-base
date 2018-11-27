@@ -1,11 +1,12 @@
-package com.project.base.web;
-
-import org.apache.commons.lang3.StringUtils;
+package com.project.base.model.net;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
 
 public class HttpRequestInfo implements Serializable {
+
+    private static final long serialVersionUID = 653981130385559297L;
+
     private String url;
     private String uri;
     private String method;

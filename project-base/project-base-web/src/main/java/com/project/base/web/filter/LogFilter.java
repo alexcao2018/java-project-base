@@ -1,6 +1,6 @@
 package com.project.base.web.filter;
 
-import com.project.base.web.HttpRequestInfo;
+import com.project.base.model.net.HttpRequestInfo;
 import com.project.base.web.annotation.LogRequest;
 import com.project.base.web.annotation.LogResponse;
 import org.apache.commons.io.IOUtils;
@@ -15,9 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
-import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
-import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -31,7 +28,6 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Component
