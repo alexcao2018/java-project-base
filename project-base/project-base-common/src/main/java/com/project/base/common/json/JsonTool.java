@@ -7,17 +7,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 public class JsonTool {
+
     private static final ObjectMapper mapper = new ObjectMapper();
 
     static {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    private static final String serializeObject(Object object) throws JsonProcessingException {
+    /**
+     * 将对象序列化为string
+     *
+     * @param object
+     * @return
+     * @throws JsonProcessingException
+     */
+    public static final String serialize(Object object) throws JsonProcessingException {
         return mapper.writeValueAsString(object);
     }
 
-    private static final <T> T deserializeObject(String json, Class<T> clazz) throws IOException {
+    /**
+     * 将json 序列化为 对象
+     *
+     * @param json
+     * @param clazz
+     * @param <T>
+     * @return
+     * @throws IOException
+     */
+    public static final <T> T deserialize(String json, Class<T> clazz) throws IOException {
         return mapper.readValue(json, clazz);
     }
 }
