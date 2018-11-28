@@ -50,7 +50,7 @@ public class HttpRequestInfo implements Serializable {
         String requestInfo = MessageFormat.format("{0},请求url:{1},{2}"
                 , method
                 , url
-                , body);
+                , body == null ? "" : ",请求体:" + body);
 
         return requestInfo;
     }

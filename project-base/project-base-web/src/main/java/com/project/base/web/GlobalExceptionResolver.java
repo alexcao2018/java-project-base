@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
 public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
 
     private Logger logger = LoggerFactory.getLogger(GlobalExceptionResolver.class);

@@ -1,5 +1,6 @@
 package com.project.base.web;
 
+import com.project.base.common.enums.EnumHttpRequestKey;
 import com.project.base.model.CommonResponse;
 import com.project.base.web.filter.LogFilter;
 import org.apache.commons.io.IOUtils;
@@ -56,7 +57,7 @@ public class GlobalExceptionHandler {
 
         String httpPostBody = StringUtils.EMPTY;
         if (HttpMethod.POST.name().equalsIgnoreCase(httpServletRequest.getMethod())) {
-            Object requestWrapperObject = httpServletRequest.getAttribute(LogFilter._KEY_CONTENT_CACHING_REQUEST_WRAPPER);
+            Object requestWrapperObject = httpServletRequest.getAttribute(EnumHttpRequestKey.RequestWrapper.getName());
             if (requestWrapperObject != null) {
                 ContentCachingRequestWrapper requestWrapper = (ContentCachingRequestWrapper) requestWrapperObject;
                 httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());

@@ -1,5 +1,6 @@
 package com.project.base.web.filter;
 
+import com.project.base.common.enums.EnumHttpRequestKey;
 import com.project.base.model.net.HttpRequestInfo;
 import com.project.base.web.annotation.LogRequest;
 import com.project.base.web.annotation.LogResponse;
@@ -33,12 +34,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 @WebFilter(urlPatterns = "/*")
 public class LogFilter extends OncePerRequestFilter {
-
-    public static final String _KEY_CONTENT_CACHING_REQUEST_WRAPPER = "_KEY_CONTENT_CACHING_REQUEST_WRAPPER";
-    public static final String _KEY_CONTENT_CACHING_RESPONSE_WRAPPER = "_KEY_CONTENT_CACHING_RESPONSE_WRAPPER";
-    public static final String _KEY_HTTP_REQUEST_INFO = "_KEY_HTTP_REQUEST_INFO";
-
-
     private static Logger logger = LoggerFactory.getLogger(LogFilter.class);
 
     @Autowired
@@ -59,7 +54,7 @@ public class LogFilter extends OncePerRequestFilter {
 
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper responseWrapper = null;
-        request.setAttribute(_KEY_CONTENT_CACHING_REQUEST_WRAPPER, requestWrapper);
+        request.setAttribute(EnumHttpRequestKey.RequestWrapper.getName(), requestWrapper);
         if (isCacheResponse) {
             responseWrapper = new ContentCachingResponseWrapper(response);
             filterChain.doFilter(requestWrapper, responseWrapper);
