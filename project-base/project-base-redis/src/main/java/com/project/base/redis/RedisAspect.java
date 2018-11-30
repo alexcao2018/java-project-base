@@ -73,7 +73,8 @@ public class RedisAspect {
 
         String cachePrefix = redisCacheable.cacheName();
         String cacheSuffix = getSuffixByGenerator(joinPoint, redisCacheable.key(), redisCacheable.keyGenerator(), method);
-        String cacheKey = MessageFormat.format("{0}:{1}", cachePrefix, cacheSuffix);
+        String splitter = redisCacheable.splitter();
+        String cacheKey = MessageFormat.format("{0}{1}{2}", cachePrefix, splitter, cacheSuffix);
         int cacheTimeout = redisCacheable.timeout();
         result = redisClient.get(cacheKey);
         if (result == null) {
@@ -111,12 +112,13 @@ public class RedisAspect {
 
         RedisClient redisClient = selectRedisClient(joinPoint, redisCacheEvict.flagExpression(), method);
         String cachePrefix = redisCacheEvict.cacheName();
-        String cachePostfix = getSuffixByGenerator(joinPoint, redisCacheEvict.key(), redisCacheEvict.keyGenerator(), method);
-        String cacheKey = MessageFormat.format("{0}:{1}", cachePrefix, cachePostfix);
+        String cacheSuffix = getSuffixByGenerator(joinPoint, redisCacheEvict.key(), redisCacheEvict.keyGenerator(), method);
+        String splitter = redisCacheEvict.splitter();
+        String cacheKey = MessageFormat.format("{0}{1}{2}", cachePrefix, splitter, cacheSuffix);
 
         boolean allEntries = redisCacheEvict.allEntries();
         if (allEntries) {
-            Set<String> keys = redisClient.keys(cachePrefix + ":*");
+            Set<String> keys = redisClient.keys(cachePrefix + splitter + "*");
             redisClient.del(keys.toArray(new String[keys.size()]));
             logger.info("缓存:{},移除", keys);
         } else if (StringUtils.isNotBlank(redisCacheEvict.key())) {
@@ -148,6 +150,7 @@ public class RedisAspect {
 
     /**
      * 生成后缀
+     *
      * @param joinPoint
      * @param key
      * @param keyGeneratorName
@@ -176,6 +179,7 @@ public class RedisAspect {
 
     /**
      * 处理el表达式
+     *
      * @param key
      * @param method
      * @param args
@@ -201,6 +205,7 @@ public class RedisAspect {
 
     /**
      * 获取AOP拦截的方法
+     *
      * @param joinPoint
      * @return
      */

@@ -48,4 +48,10 @@ public @interface RedisCacheEvict {
      * @return
      */
     String flagExpression() default "";
+
+    /**
+     * cache name 与 key 的分隔符
+     * @return
+     */
+    String splitter() default ":";
 }
