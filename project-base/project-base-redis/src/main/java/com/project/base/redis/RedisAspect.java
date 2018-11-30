@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -76,20 +77,28 @@ public class RedisAspect {
         String splitter = redisCacheable.splitter();
         String cacheKey = MessageFormat.format("{0}{1}{2}", cachePrefix, splitter, cacheSuffix);
         int cacheTimeout = redisCacheable.timeout();
-        result = redisClient.get(cacheKey);
-        if (result == null) {
-            logger.info("缓存:{},未命中", cacheKey);
-            try {
+
+        try {
+            result = redisClient.get(cacheKey);
+        } catch (Throwable throwable) {
+            logger.error(throwable.getMessage(), throwable);
+        }
+
+        try {
+            if (result == null) {
+                logger.info("缓存:{},未命中", cacheKey);
                 result = joinPoint.proceed();
+
                 if (result != null) {
                     redisClient.set(cacheKey, result, cacheTimeout);
                     logger.info("缓存:{},添加到缓存，过期时间{}秒", cacheKey, cacheTimeout);
                 }
-            } catch (Throwable throwable) {
-                logger.error(throwable.getMessage(), throwable);
+
+            } else {
+                logger.info("缓存:{},命中", cacheKey);
             }
-        } else {
-            logger.info("缓存:{},命中", cacheKey);
+        } catch (Throwable throwable) {
+            logger.error(throwable.getMessage(), throwable);
         }
 
         return result;
@@ -117,6 +126,7 @@ public class RedisAspect {
         String cacheKey = MessageFormat.format("{0}{1}{2}", cachePrefix, splitter, cacheSuffix);
 
         boolean allEntries = redisCacheEvict.allEntries();
+
         if (allEntries) {
             Set<String> keys = redisClient.keys(cachePrefix + splitter + "*");
             redisClient.del(keys.toArray(new String[keys.size()]));
@@ -125,6 +135,7 @@ public class RedisAspect {
             redisClient.del(cacheKey);
         }
         logger.info("缓存:{},移除", cacheKey);
+
     }
 
     /**
@@ -143,8 +154,13 @@ public class RedisAspect {
         if (StringUtils.isBlank(flag))
             return defaultRedisClient;
 
-        RedisClient selectedRedisClient = redisClientWrapperCollection.stream().filter(x -> flag.equalsIgnoreCase(x.getFlag())).findFirst().get().getRedisClient();
-        return selectedRedisClient;
+        Optional<RedisClientWrapper> selectedRedisClient = redisClientWrapperCollection.stream().filter(x -> flag.equalsIgnoreCase(x.getFlag())).findFirst();
+        if (!selectedRedisClient.isPresent()) {
+            logger.error("未找到flag:{}的redis client.", flag);
+            return null;
+        }
+
+        return selectedRedisClient.get().getRedisClient();
     }
 
 
