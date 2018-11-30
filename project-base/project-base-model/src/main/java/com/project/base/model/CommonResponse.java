@@ -11,6 +11,8 @@ public class CommonResponse<T> implements Serializable {
     private String message;
     @JsonProperty("Data")
     private T data;
+    @JsonProperty("Exception")
+    private String exception;
 
     public Integer getError() {
         return error;
@@ -52,6 +54,14 @@ public class CommonResponse<T> implements Serializable {
 
     public static CommonResponse error(String message) {
         return error(1, message);
+    }
+
+    public String getException() {
+        return exception;
+    }
+
+    public void setException(String exception) {
+        this.exception = exception;
     }
 }
 

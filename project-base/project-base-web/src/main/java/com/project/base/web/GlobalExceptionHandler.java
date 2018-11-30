@@ -77,7 +77,8 @@ public class GlobalExceptionHandler {
             message.append(System.getProperty("line.separator"));
             message.append(e);
         }
-        response.setMessage(message.toString());
+        response.setMessage("接口异常");
+        response.setException(message.toString());
         return response;
     }
 
