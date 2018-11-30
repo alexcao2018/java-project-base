@@ -14,6 +14,29 @@ public class CommonResponse<T> implements Serializable {
     @JsonProperty("Exception")
     private String exception;
 
+    public static CommonResponse success(Object data) {
+        CommonResponse response = new CommonResponse();
+        response.setData(data);
+        response.setError(0);
+        return response;
+    }
+
+    public static CommonResponse error(Integer errorcode, String message, String exception) {
+        CommonResponse response = new CommonResponse();
+        response.setMessage(message);
+        response.setException(exception);
+        response.setError(errorcode);
+        return response;
+    }
+
+    public static CommonResponse error(String message) {
+        return error(1, message, null);
+    }
+
+    public static CommonResponse error(String message, String exception) {
+        return error(1, message, exception);
+    }
+
     public Integer getError() {
         return error;
     }
@@ -36,24 +59,6 @@ public class CommonResponse<T> implements Serializable {
 
     public void setData(T data) {
         this.data = data;
-    }
-
-    public static CommonResponse success(Object data) {
-        CommonResponse response = new CommonResponse();
-        response.setData(data);
-        response.setError(0);
-        return response;
-    }
-
-    public static CommonResponse error(Integer errorcode, String message) {
-        CommonResponse response = new CommonResponse();
-        response.setMessage(message);
-        response.setError(errorcode);
-        return response;
-    }
-
-    public static CommonResponse error(String message) {
-        return error(1, message);
     }
 
     public String getException() {
