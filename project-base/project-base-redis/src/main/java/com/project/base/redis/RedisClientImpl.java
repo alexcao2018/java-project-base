@@ -17,6 +17,14 @@ public class RedisClientImpl implements RedisClient {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    public RedisTemplate<String, Object> getRedisTemplate() {
+        return redisTemplate;
+    }
+
+    public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
     /**
      * 设置过期时间，秒为单位
      *

@@ -1,6 +1,8 @@
 说明：
 目前只支持spring boot 接入
 接入方式：
+
+1、启动类
     @SpringBootApplication
     @ComponentScan({"com.project.base.redis"})
     public class App {
@@ -8,6 +10,40 @@
             SpringApplication.run(App.class, args);
         }
     }
+    
+2、yml 文件
+
+spring:
+  redis:
+    hosts:
+      - host: 192.168.8.10
+        port: 6379
+        flag: sz
+      - host: 192.168.8.10
+        port: 6379
+        flag: sh
+      - host: 192.168.8.10
+        port: 6379
+        flag: wx
+    pool:
+      max-active: 16
+    host: 192.168.8.10
+    
+3、方法上加标记
+
+    @GetMapping("/index")
+    @RedisCacheable(cacheName = "test",key = "#city", flagExpression = "#city")
+    public String index(@PathVariable("city") String city) {
+        return "ok";
+    }
+
+
+    @GetMapping("/evict")
+    @RedisCacheEvict(cacheName = "test",key = "#city", flagExpression = "#city")
+    public String evict(@PathVariable("city") String city) {
+        return "ok";
+    }
+
     
 一、redis 事务
 
@@ -26,7 +62,7 @@ private RedisTemplate<String, Object> redisTemplate;
 List<Object> txResults = redisTemplate.execute(new SessionCallback<List<Object>>() {
   public List<Object> execute(RedisOperations operations) throws DataAccessException {
     operations.multi();
-    operations.opsForSet().add("key", "value1");
+    operations.opsForSet().add("flag", "value1");
 
     // This will contain the results of all ops in the transaction
     return operations.exec();

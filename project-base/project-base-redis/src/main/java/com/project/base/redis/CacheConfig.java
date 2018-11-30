@@ -24,6 +24,10 @@ public class CacheConfig extends CachingConfigurerSupport {
         return cacheManager;
     }
 
+    /**
+     * 默认 key generator
+     * @return
+     */
     @Override
     public KeyGenerator keyGenerator() {
         return new KeyGenerator() {

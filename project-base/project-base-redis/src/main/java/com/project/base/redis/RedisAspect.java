@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -30,7 +31,10 @@ public class RedisAspect {
     private Logger logger = LoggerFactory.getLogger(RedisAspect.class);
 
     @Autowired
-    private RedisClient redisClient;
+    private RedisClient defaultRedisClient;
+
+    @Autowired
+    private List<RedisClientWrapper> redisClientWrapperCollection;
 
     @Autowired
     private DefaultKeyGenerator defaultKeyGenerator;
@@ -45,36 +49,18 @@ public class RedisAspect {
 
     }
 
-    @Before("pointcutCacheEvictMethod()")
-    public void beforeCacheEvict(JoinPoint joinPoint) {
-        Method method = getMethod(joinPoint);
-        RedisCacheEvict redisCacheEvict = method.getAnnotation(RedisCacheEvict.class);
-        if (redisCacheEvict.cacheNames() == null || redisCacheEvict.cacheNames().length == 0) {
-            return;
-        }
-
-        String cachePrefix = redisCacheEvict.cacheNames()[0];
-        String cachePostfix = getPostfixByGenerator(joinPoint, redisCacheEvict.key(), redisCacheEvict.keyGenerator(), method);
-        String cacheKey = MessageFormat.format("{0}:{1}", cachePrefix, cachePostfix);
-
-        boolean allEntries = redisCacheEvict.allEntries();
-        if (allEntries) {
-            Set<String> keys = redisClient.keys(cachePrefix + ":*");
-            redisClient.del(keys.toArray(new String[keys.size()]));
-            logger.info("缓存:{},移除", keys);
-        } else if (StringUtils.isNotBlank(redisCacheEvict.key())) {
-            redisClient.del(cacheKey);
-        }
-        logger.info("缓存:{},移除", cacheKey);
-    }
-
-
+    /**
+     * 缓存添加
+     *
+     * @param joinPoint
+     * @return
+     */
     @Around("pointcutCacheableMethod()")
     public Object aroundCacheable(ProceedingJoinPoint joinPoint) {
         Object result = null;
         Method method = getMethod(joinPoint);
         RedisCacheable redisCacheable = method.getAnnotation(RedisCacheable.class);
-        if (redisCacheable.cacheNames() == null || redisCacheable.cacheNames().length == 0) {
+        if (StringUtils.isBlank(redisCacheable.cacheName())) {
             try {
                 result = joinPoint.proceed();
                 return result;
@@ -83,9 +69,11 @@ public class RedisAspect {
             }
         }
 
-        String cachePrefix = redisCacheable.cacheNames()[0];
-        String cachePostfix = getPostfixByGenerator(joinPoint, redisCacheable.key(), redisCacheable.keyGenerator(), method);
-        String cacheKey = MessageFormat.format("{0}:{1}", cachePrefix, cachePostfix);
+        RedisClient redisClient = selectRedisClient(joinPoint, redisCacheable.flagExpression(), method);
+
+        String cachePrefix = redisCacheable.cacheName();
+        String cacheSuffix = getSuffixByGenerator(joinPoint, redisCacheable.key(), redisCacheable.keyGenerator(), method);
+        String cacheKey = MessageFormat.format("{0}:{1}", cachePrefix, cacheSuffix);
         int cacheTimeout = redisCacheable.timeout();
         result = redisClient.get(cacheKey);
         if (result == null) {
@@ -106,8 +94,67 @@ public class RedisAspect {
         return result;
     }
 
-    private String getPostfixByGenerator(JoinPoint joinPoint, String key, String keyGeneratorName, Method method) {
 
+    /**
+     * 缓存清除
+     *
+     * @param joinPoint
+     */
+    @Before("pointcutCacheEvictMethod()")
+    public void beforeCacheEvict(JoinPoint joinPoint) {
+
+        Method method = getMethod(joinPoint);
+        RedisCacheEvict redisCacheEvict = method.getAnnotation(RedisCacheEvict.class);
+        if (StringUtils.isBlank(redisCacheEvict.cacheName())) {
+            return;
+        }
+
+        RedisClient redisClient = selectRedisClient(joinPoint, redisCacheEvict.flagExpression(), method);
+        String cachePrefix = redisCacheEvict.cacheName();
+        String cachePostfix = getSuffixByGenerator(joinPoint, redisCacheEvict.key(), redisCacheEvict.keyGenerator(), method);
+        String cacheKey = MessageFormat.format("{0}:{1}", cachePrefix, cachePostfix);
+
+        boolean allEntries = redisCacheEvict.allEntries();
+        if (allEntries) {
+            Set<String> keys = redisClient.keys(cachePrefix + ":*");
+            redisClient.del(keys.toArray(new String[keys.size()]));
+            logger.info("缓存:{},移除", keys);
+        } else if (StringUtils.isNotBlank(redisCacheEvict.key())) {
+            redisClient.del(cacheKey);
+        }
+        logger.info("缓存:{},移除", cacheKey);
+    }
+
+    /**
+     * 选择redis client
+     *
+     * @param joinPoint
+     * @param flagExpression
+     * @param method
+     * @return
+     */
+    private RedisClient selectRedisClient(JoinPoint joinPoint, String flagExpression, Method method) {
+        if (StringUtils.isBlank(flagExpression))
+            return defaultRedisClient;
+
+        String flag = parseKey(flagExpression, method, joinPoint.getArgs());
+        if (StringUtils.isBlank(flag))
+            return defaultRedisClient;
+
+        RedisClient selectedRedisClient = redisClientWrapperCollection.stream().filter(x -> flag.equalsIgnoreCase(x.getFlag())).findFirst().get().getRedisClient();
+        return selectedRedisClient;
+    }
+
+
+    /**
+     * 生成后缀
+     * @param joinPoint
+     * @param key
+     * @param keyGeneratorName
+     * @param method
+     * @return
+     */
+    private String getSuffixByGenerator(JoinPoint joinPoint, String key, String keyGeneratorName, Method method) {
         String cachePostfix = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(key)) {
             cachePostfix = parseKey(key, method, joinPoint.getArgs());
@@ -127,6 +174,13 @@ public class RedisAspect {
         return cachePostfix;
     }
 
+    /**
+     * 处理el表达式
+     * @param key
+     * @param method
+     * @param args
+     * @return
+     */
     private String parseKey(String key, Method method, Object[] args) {
         //获取被拦截方法参数名列表(使用Spring支持类库)
         LocalVariableTableParameterNameDiscoverer u =
@@ -145,6 +199,11 @@ public class RedisAspect {
     }
 
 
+    /**
+     * 获取AOP拦截的方法
+     * @param joinPoint
+     * @return
+     */
     public Method getMethod(JoinPoint joinPoint) {
         //获取参数的类型
         Object[] args = joinPoint.getArgs();

@@ -9,8 +9,9 @@ import java.util.Set;
 
 public interface RedisClient {
 
-    /** 通用数据类型接口
-    -------------------------------------------
+    /**
+     * 通用数据类型接口
+     * -------------------------------------------
      */
     boolean set(String key, Object value);
 
@@ -26,8 +27,9 @@ public interface RedisClient {
 
     <T> T get(String key);
 
-    /** hash 数据类型接口
-    -------------------------------------------
+    /**
+     * hash 数据类型接口
+     * -------------------------------------------
      */
 
     boolean hSet(String key, Object hashKey, Object value);
@@ -50,8 +52,9 @@ public interface RedisClient {
 
     Set<Object> hKeys(String key);
 
-    /** 列表 数据类型接口
-    -------------------------------------------
+    /**
+     * 列表 数据类型接口
+     * -------------------------------------------
      */
 
     long lLeftPush(String key, Object value);
@@ -84,8 +87,9 @@ public interface RedisClient {
 
     boolean lTrim(String key, long start, long end);
 
-    /** set 数据类型接口
-     -------------------------------------------
+    /**
+     * set 数据类型接口
+     * -------------------------------------------
      */
 
     boolean sAdd(String key, Object... values);
@@ -108,8 +112,9 @@ public interface RedisClient {
 
     boolean sIsMember(String key, Object object);
 
-    /** sorted set 数据类型接口
-     -------------------------------------------
+    /**
+     * sorted set 数据类型接口
+     * -------------------------------------------
      */
 
     long zAdd(String key, Set<ZSetOperations.TypedTuple<Object>> tuples);
