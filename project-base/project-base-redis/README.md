@@ -27,7 +27,7 @@ spring:
         flag: wx
     pool:
       max-active: 16
-      max-wait: 10000
+      max-wait: 5000
       
     host: 192.168.8.10
     
