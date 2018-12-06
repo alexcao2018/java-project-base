@@ -23,6 +23,7 @@
         <module>project-base-dubbo</module>
         <module>project-base-redis</module>
         <module>project-base-plugin</module>
+        <module>project-base-rabbitmq</module>
     </modules>
     <name>project-base</name>
 
