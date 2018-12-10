@@ -15,6 +15,10 @@ public interface RedisClient {
      */
     boolean set(String key, Object value);
 
+    boolean setIfAbsent(String key, Object value);
+
+    boolean setIfAbsent(String key, Object value, Integer timeout);
+
     boolean set(String key, Object value, int timeout);
 
     boolean del(String... key);

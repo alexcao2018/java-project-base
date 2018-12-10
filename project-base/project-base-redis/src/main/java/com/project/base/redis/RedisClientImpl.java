@@ -49,7 +49,7 @@ public class RedisClientImpl implements RedisClient {
     }
 
     @Override
-    public Set<String> keys(String pattern){
+    public Set<String> keys(String pattern) {
         return redisTemplate.keys(pattern);
     }
 
@@ -80,6 +80,35 @@ public class RedisClientImpl implements RedisClient {
         valueOperations.set(key, value);
         return true;
     }
+
+    /**
+     * SETNX 命令
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    @Override
+    public boolean setIfAbsent(String key, Object value) {
+        return setIfAbsent(key, value, null);
+    }
+
+    /**
+     * SETNX 命令
+     * @param key
+     * @param value
+     * @param timeout
+     * @return
+     */
+    @Override
+    public boolean setIfAbsent(String key, Object value, Integer timeout) {
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        Boolean result = valueOperations.setIfAbsent(key, value);
+        if (timeout != null && result)
+            expire(key, timeout);
+        return result;
+    }
+
 
     /**
      * 设置key值 以及 过期时间，秒为单位
@@ -254,6 +283,7 @@ public class RedisClientImpl implements RedisClient {
 
     /**
      * 从左面向列表push 元素
+     *
      * @param key
      * @param value
      * @return
@@ -265,6 +295,7 @@ public class RedisClientImpl implements RedisClient {
 
     /**
      * 从左面向列表push 元素 以及过期时间，秒为单位
+     *
      * @param key
      * @param value
      * @param timeout
@@ -281,6 +312,7 @@ public class RedisClientImpl implements RedisClient {
 
     /**
      * 从左面向列表push 元素
+     *
      * @param key
      * @param values
      * @return
@@ -292,6 +324,7 @@ public class RedisClientImpl implements RedisClient {
 
     /**
      * 从左面向列表push 元素 以及过期时间，秒为单位
+     *
      * @param key
      * @param timeout
      * @param values
@@ -308,6 +341,7 @@ public class RedisClientImpl implements RedisClient {
 
     /**
      * 从右面向列表push 元素 以及过期时间
+     *
      * @param key
      * @param value
      * @return
@@ -319,6 +353,7 @@ public class RedisClientImpl implements RedisClient {
 
     /**
      * 从右面向列表push 元素 以及过期时间，秒为单位
+     *
      * @param key
      * @param value
      * @param timeout
@@ -335,6 +370,7 @@ public class RedisClientImpl implements RedisClient {
 
     /**
      * 从右面向列表push 元素
+     *
      * @param key
      * @param values
      * @return
@@ -346,6 +382,7 @@ public class RedisClientImpl implements RedisClient {
 
     /**
      * 从右面向列表push 元素 以及过期时间，秒为单位
+     *
      * @param key
      * @param timeout
      * @param values
