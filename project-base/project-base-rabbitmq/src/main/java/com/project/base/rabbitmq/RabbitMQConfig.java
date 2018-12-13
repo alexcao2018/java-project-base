@@ -7,7 +7,6 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -32,10 +31,9 @@ public class RabbitMQConfig {
     private ApplicationContext applicationContext;
 
     @Autowired
-    private ConnectionFactory connectionFactory;
-
-    @Autowired
     private RabbitMQProperties rabbitMQProperties;
+
+    private List<RabbitMQTemplateWrapper> rabbitMQTemplateWrapperCollection = new ArrayList<>();
 
     @Bean
     public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
@@ -99,7 +97,6 @@ public class RabbitMQConfig {
             ----------------------------------------------------
              */
             DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-            ;
             SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory = defaultListableBeanFactory.getBean(ContainerFactoryBeanPrefix + rabbitMQConnectionFactoryWrapper.getFlag(), SimpleRabbitListenerContainerFactory.class);
 
             simpleRabbitListenerContainerFactory.setConnectionFactory(rabbitMQConnectionFactoryWrapper.getConnectionFactory());
@@ -126,13 +123,18 @@ public class RabbitMQConfig {
     public List<RabbitMQAdaminWrapper> rabbitAdminCollection(List<RabbitMQConnectionFactoryWrapper> rabbitMQConnectionFactoryWrapperCollection) throws Exception {
 
         List<RabbitMQAdaminWrapper> rabbitMQAdminWrapperCollection = new ArrayList<>();
+        List<RabbitMQTemplateWrapper> rabbitMQTemplateWrapperCollection = initRabbitTemplate(rabbitMQConnectionFactoryWrapperCollection);
         for (RabbitMQConnectionFactoryWrapper rabbitMQConnectionFactoryWrapper : rabbitMQConnectionFactoryWrapperCollection) {
 
             /* 获取在RabbitMQBeanDefinitionRegistryPostProcessor 中注册的bean,进行属性更改
             ----------------------------------------------------*/
             DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
+
             RabbitAdmin rabbitAdmin = defaultListableBeanFactory.getBean(AdminPrefix + rabbitMQConnectionFactoryWrapper.getFlag(), RabbitAdmin.class);
             setFinalStatic(rabbitAdmin, RabbitAdmin.class.getDeclaredField("connectionFactory"), rabbitMQConnectionFactoryWrapper.getConnectionFactory());
+
+            RabbitMQTemplateWrapper rabbitMQTemplateWrapper = rabbitMQTemplateWrapperCollection.stream().filter(x -> x.getFlag().equalsIgnoreCase(rabbitMQConnectionFactoryWrapper.getFlag())).findAny().get();
+            setFinalStatic(rabbitAdmin, RabbitAdmin.class.getDeclaredField("rabbitTemplate"), rabbitMQTemplateWrapper.getRabbitTemplate());
 
             RabbitMQAdaminWrapper rabbitMQAdaminWrapper = new RabbitMQAdaminWrapper();
             rabbitMQAdaminWrapper.setRabbitAdmin(rabbitAdmin);
@@ -151,8 +153,12 @@ public class RabbitMQConfig {
      */
     @Bean
     public List<RabbitMQTemplateWrapper> rabbitTemplateCollection(List<RabbitMQConnectionFactoryWrapper> rabbitMQConnectionFactoryWrapperCollection) {
+        return initRabbitTemplate(rabbitMQConnectionFactoryWrapperCollection);
+    }
 
-        List<RabbitMQTemplateWrapper> rabbitMQTemplateWrapperCollection = new ArrayList<>();
+    private List<RabbitMQTemplateWrapper> initRabbitTemplate(List<RabbitMQConnectionFactoryWrapper> rabbitMQConnectionFactoryWrapperCollection) {
+        if (rabbitMQTemplateWrapperCollection.size() > 0)
+            return rabbitMQTemplateWrapperCollection;
         for (RabbitMQConnectionFactoryWrapper rabbitMQConnectionFactoryWrapper : rabbitMQConnectionFactoryWrapperCollection) {
 
             RabbitTemplate rabbitTemplate = new RabbitTemplate(rabbitMQConnectionFactoryWrapper.getConnectionFactory());
@@ -164,7 +170,6 @@ public class RabbitMQConfig {
 
             rabbitMQTemplateWrapperCollection.add(rabbitMQTemplateWrapper);
         }
-
         return rabbitMQTemplateWrapperCollection;
     }
 
