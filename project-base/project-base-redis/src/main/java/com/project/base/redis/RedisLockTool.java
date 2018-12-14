@@ -6,12 +6,7 @@ import org.slf4j.LoggerFactory;
 public class RedisLockTool {
 
     private RedisClient redisClient;
-
-    private static Logger logger = LoggerFactory.getLogger(RedisLockTool.class);
-
-
     private String lockKey;
-
 
     private volatile boolean locked = false;
 
@@ -26,13 +21,7 @@ public class RedisLockTool {
 
 
     public boolean setNX(final String key, final String value) {
-        Object obj = null;
-        try {
-            obj = redisClient.setIfAbsent(key, value, 30);
-        } catch (Exception e) {
-            logger.error("setIfAbsent redis error, key : {}", key);
-        }
-        return obj != null ? true : false;
+        return redisClient.setIfAbsent(key, value, 30);
     }
 
     public boolean lock() {
