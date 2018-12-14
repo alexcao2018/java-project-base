@@ -10,11 +10,13 @@ import java.util.concurrent.TimeUnit;
 /*
 
     第1步：
-       1. 在/resources/META-INF/dubbo 中建立文件
-         com.alibaba.dubbo.rpc.Filter
-       2. 文件中填写
-         dubboFilter=com.project.base.dubbo.filter.DubboFilter
+       在biz项目中引用：
+       <dependency>
+            <groupId>com.project.base</groupId>
+            <artifactId>project-base-dubbo</artifactId>
+        </dependency>
 
+        ps: 在web-host 项目中引用不起作用。
 
     第2步：
        1. 在/resources/META-INF/dubbo 中建立文件
