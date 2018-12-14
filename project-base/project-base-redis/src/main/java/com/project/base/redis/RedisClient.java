@@ -1,6 +1,7 @@
 package com.project.base.redis;
 
 import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 
 import java.util.List;
@@ -8,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 public interface RedisClient {
+
+
+    RedisTemplate<String, Object> getRedisTemplate();
 
     /**
      * 通用数据类型接口
