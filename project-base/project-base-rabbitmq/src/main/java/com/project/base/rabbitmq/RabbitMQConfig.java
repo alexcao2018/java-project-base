@@ -1,10 +1,13 @@
 package com.project.base.rabbitmq;
 
+import com.project.base.common.lang.reflect.ReflectTool;
+import org.springframework.amqp.rabbit.annotation.RabbitListenerConfigurer;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistrar;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -13,16 +16,16 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
 @ConfigurationProperties("spring.rabbitmq")
 @EnableConfigurationProperties(RabbitMQProperties.class)
-public class RabbitMQConfig {
+public class RabbitMQConfig implements RabbitListenerConfigurer {
 
     public static final String ContainerFactoryBeanPrefix = "rabbitmq-containerFactory-";
     public static final String AdminPrefix = "rabbitmq-admin-";
@@ -47,15 +50,6 @@ public class RabbitMQConfig {
         rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
         return rabbitTemplate;
     }
-
-    @Bean
-    public SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory(ConnectionFactory connectionFactory){
-        SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory = new SimpleRabbitListenerContainerFactory();
-        simpleRabbitListenerContainerFactory.setConnectionFactory(connectionFactory);
-        simpleRabbitListenerContainerFactory.setMessageConverter(new Jackson2JsonMessageConverter());
-        return simpleRabbitListenerContainerFactory;
-    }
-
 
     /**
      * rabbitMQ connection factory 集合
@@ -139,10 +133,10 @@ public class RabbitMQConfig {
             DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
 
             RabbitAdmin rabbitAdmin = defaultListableBeanFactory.getBean(AdminPrefix + rabbitMQConnectionFactoryWrapper.getFlag(), RabbitAdmin.class);
-            setFinalStatic(rabbitAdmin, RabbitAdmin.class.getDeclaredField("connectionFactory"), rabbitMQConnectionFactoryWrapper.getConnectionFactory());
+            ReflectTool.setFinalFeildValue(rabbitAdmin, RabbitAdmin.class.getDeclaredField("connectionFactory"), rabbitMQConnectionFactoryWrapper.getConnectionFactory());
 
             RabbitMQTemplateWrapper rabbitMQTemplateWrapper = rabbitMQTemplateWrapperCollection.stream().filter(x -> x.getFlag().equalsIgnoreCase(rabbitMQConnectionFactoryWrapper.getFlag())).findAny().get();
-            setFinalStatic(rabbitAdmin, RabbitAdmin.class.getDeclaredField("rabbitTemplate"), rabbitMQTemplateWrapper.getRabbitTemplate());
+            ReflectTool.setFinalFeildValue(rabbitAdmin, RabbitAdmin.class.getDeclaredField("rabbitTemplate"), rabbitMQTemplateWrapper.getRabbitTemplate());
 
             RabbitMQAdaminWrapper rabbitMQAdaminWrapper = new RabbitMQAdaminWrapper();
             rabbitMQAdaminWrapper.setRabbitAdmin(rabbitAdmin);
@@ -181,13 +175,16 @@ public class RabbitMQConfig {
         return rabbitMQTemplateWrapperCollection;
     }
 
-    void setFinalStatic(Object object, Field field, Object newValue) throws Exception {
-        field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        field.set(object, newValue);
+    @Bean
+    public DefaultMessageHandlerMethodFactory defaultMessageHandlerMethodFactory() {
+        DefaultMessageHandlerMethodFactory factory = new DefaultMessageHandlerMethodFactory();
+        factory.setMessageConverter(new MappingJackson2MessageConverter());
+        return factory;
     }
 
 
+    @Override
+    public void configureRabbitListeners(RabbitListenerEndpointRegistrar registrar) {
+        registrar.setMessageHandlerMethodFactory(defaultMessageHandlerMethodFactory());
+    }
 }
