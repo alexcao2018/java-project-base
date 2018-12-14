@@ -1,0 +1,1 @@
+consumeLogFilter=com.project.base.dubbo.filter.ConsumeLogFilter
