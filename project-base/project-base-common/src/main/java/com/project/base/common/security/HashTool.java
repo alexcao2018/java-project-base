@@ -49,7 +49,7 @@ public class HashTool {
         return null;
     }
 
-    public static String sha1Encrypt(String message) {
+    public static String sha1(String message) {
         return DigestUtils.sha1Hex(message);
     }
 }
