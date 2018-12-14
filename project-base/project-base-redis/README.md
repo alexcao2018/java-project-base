@@ -3,6 +3,7 @@
 接入方式：
 
 1、启动类
+
     @SpringBootApplication
     @ComponentScan({"com.project.base.redis"})
     public class App {
@@ -13,23 +14,23 @@
     
 2、yml 文件
 
-spring:
-  redis:
-    hosts:
-      - host: 192.168.8.10
-        port: 6379
-        flag: sz
-      - host: 192.168.8.10
-        port: 6379
-        flag: sh
-      - host: 192.168.8.10
-        port: 6379
-        flag: wx
-    pool:
-      max-active: 16
-      max-wait: 5000
-      
-    host: 192.168.8.10
+    spring:
+      redis:
+        hosts:
+          - host: 192.168.8.10
+            port: 6379
+            flag: sz
+          - host: 192.168.8.10
+            port: 6379
+            flag: sh
+          - host: 192.168.8.10
+            port: 6379
+            flag: wx
+        pool:
+          max-active: 16
+          max-wait: 5000
+          
+        host: 192.168.8.10
     
 3、方法上加标记
 
