@@ -2,13 +2,10 @@ package com.project.base.redis;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 public class RedisLockTool {
 
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisClient redisClient;
 
     private static Logger logger = LoggerFactory.getLogger(RedisLockTool.class);
 
@@ -18,8 +15,8 @@ public class RedisLockTool {
 
     private volatile boolean locked = false;
 
-    public RedisLockTool(RedisTemplate<String, Object> redisTemplate, String lockKey) {
-        this.redisTemplate = redisTemplate;
+    public RedisLockTool(RedisClient redisClient, String lockKey) {
+        this.redisClient = redisClient;
         this.lockKey = lockKey + "_lock";
     }
 
@@ -31,17 +28,11 @@ public class RedisLockTool {
     public boolean setNX(final String key, final String value) {
         Object obj = null;
         try {
-            obj = redisTemplate.execute((RedisCallback<Object>) connection -> {
-                StringRedisSerializer serializer = new StringRedisSerializer();
-                Boolean success = connection.setNX(serializer.serialize(key), serializer.serialize(value));
-                connection.expire(serializer.serialize(key), 30);
-                connection.close();
-                return success;
-            });
+            obj = redisClient.setIfAbsent(key, value, 30);
         } catch (Exception e) {
-            logger.error("setNX redis error, key : {}", key);
+            logger.error("setIfAbsent redis error, key : {}", key);
         }
-        return obj != null ? (Boolean) obj : false;
+        return obj != null ? true : false;
     }
 
     public synchronized boolean lock() {
@@ -56,7 +47,7 @@ public class RedisLockTool {
 
     public synchronized void unlock() {
         if (locked) {
-            redisTemplate.delete(lockKey);
+            redisClient.del(lockKey);
             locked = false;
         }
     }

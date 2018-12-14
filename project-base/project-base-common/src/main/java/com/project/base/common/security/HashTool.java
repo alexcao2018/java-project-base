@@ -2,6 +2,7 @@ package com.project.base.common.security;
 
 import com.project.base.common.enums.EnumEncodeFormat;
 import com.project.base.common.lang.string.EncodeTool;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ public class HashTool {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] bytes = digest.digest(input.getBytes());
-            return encode(bytes,returnEncodeFormat);
+            return encode(bytes, returnEncodeFormat);
         } catch (NoSuchAlgorithmException e) {
             logger.error(e.getMessage(), e);
         }
@@ -31,7 +32,7 @@ public class HashTool {
             SecretKeySpec secret_key = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
             sha256_HMAC.init(secret_key);
             byte[] bytes = sha256_HMAC.doFinal(input.getBytes());
-            return encode(bytes,returnEncodeFormat);
+            return encode(bytes, returnEncodeFormat);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -39,12 +40,16 @@ public class HashTool {
     }
 
 
-    private static String encode(byte[] byteArray, EnumEncodeFormat returnEncodeFormat){
+    private static String encode(byte[] byteArray, EnumEncodeFormat returnEncodeFormat) {
         if (returnEncodeFormat.equals(EnumEncodeFormat.Hex))
             return EncodeTool.encodeHex(byteArray);
-        else if(returnEncodeFormat.equals(EnumEncodeFormat.Base64))
+        else if (returnEncodeFormat.equals(EnumEncodeFormat.Base64))
             return EncodeTool.encodeBase64(byteArray);
 
         return null;
+    }
+
+    public static String sha1Encrypt(String message) {
+        return DigestUtils.sha1Hex(message);
     }
 }
