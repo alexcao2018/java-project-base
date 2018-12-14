@@ -35,7 +35,7 @@ public class RedisLockTool {
         return obj != null ? true : false;
     }
 
-    public synchronized boolean lock() {
+    public boolean lock() {
         long expires = System.currentTimeMillis();
         String expiresStr = String.valueOf(expires);
         if (this.setNX(lockKey, expiresStr)) {
@@ -45,7 +45,7 @@ public class RedisLockTool {
         return false;
     }
 
-    public synchronized void unlock() {
+    public void unlock() {
         if (locked) {
             redisClient.del(lockKey);
             locked = false;
