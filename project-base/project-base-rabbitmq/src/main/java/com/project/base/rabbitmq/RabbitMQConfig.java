@@ -122,9 +122,9 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
      * @return
      */
     @Bean
-    public List<RabbitMQAdaminWrapper> rabbitAdminCollection(List<RabbitMQConnectionFactoryWrapper> rabbitMQConnectionFactoryWrapperCollection) throws Exception {
+    public List<RabbitMQAdminWrapper> rabbitAdminCollection(List<RabbitMQConnectionFactoryWrapper> rabbitMQConnectionFactoryWrapperCollection) throws Exception {
 
-        List<RabbitMQAdaminWrapper> rabbitMQAdminWrapperCollection = new ArrayList<>();
+        List<RabbitMQAdminWrapper> rabbitMQAdminWrapperCollection = new ArrayList<>();
         List<RabbitMQTemplateWrapper> rabbitMQTemplateWrapperCollection = initRabbitTemplate(rabbitMQConnectionFactoryWrapperCollection);
         for (RabbitMQConnectionFactoryWrapper rabbitMQConnectionFactoryWrapper : rabbitMQConnectionFactoryWrapperCollection) {
 
@@ -138,11 +138,11 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
             RabbitMQTemplateWrapper rabbitMQTemplateWrapper = rabbitMQTemplateWrapperCollection.stream().filter(x -> x.getFlag().equalsIgnoreCase(rabbitMQConnectionFactoryWrapper.getFlag())).findAny().get();
             ReflectTool.setFinalFeildValue(rabbitAdmin, RabbitAdmin.class.getDeclaredField("rabbitTemplate"), rabbitMQTemplateWrapper.getRabbitTemplate());
 
-            RabbitMQAdaminWrapper rabbitMQAdaminWrapper = new RabbitMQAdaminWrapper();
-            rabbitMQAdaminWrapper.setRabbitAdmin(rabbitAdmin);
-            rabbitMQAdaminWrapper.setFlag(rabbitMQConnectionFactoryWrapper.getFlag());
+            RabbitMQAdminWrapper rabbitMQAdminWrapper = new RabbitMQAdminWrapper();
+            rabbitMQAdminWrapper.setRabbitAdmin(rabbitAdmin);
+            rabbitMQAdminWrapper.setFlag(rabbitMQConnectionFactoryWrapper.getFlag());
 
-            rabbitMQAdminWrapperCollection.add(rabbitMQAdaminWrapper);
+            rabbitMQAdminWrapperCollection.add(rabbitMQAdminWrapper);
         }
         return rabbitMQAdminWrapperCollection;
     }
