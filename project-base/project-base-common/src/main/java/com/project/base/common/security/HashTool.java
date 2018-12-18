@@ -8,8 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 public class HashTool {
 
@@ -52,4 +55,27 @@ public class HashTool {
     public static String sha1(String message) {
         return DigestUtils.sha1Hex(message);
     }
+
+
+    public static String createSalt(Integer size) {
+        byte[] salt = new byte[size];
+        try {
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            random.nextBytes(salt);
+            return Base64.getEncoder().encodeToString(salt);
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
+    }
+
+    public static String md5(String str) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(str.getBytes());
+            return new BigInteger(1, md.digest()).toString(16);
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
+    }
+
 }
