@@ -61,7 +61,7 @@ public class HttpTool {
         return get(uri2.toString(), clazz, 30000);
     }
 
-    private static final <T> T get(String uri, Class<T> clazz, Integer timeout)
+    public static final <T> T get(String uri, Class<T> clazz, Integer timeout)
             throws IOException {
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(timeout).setConnectionRequestTimeout(timeout)
