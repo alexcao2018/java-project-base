@@ -2,7 +2,7 @@ package com.project.base.rabbitmq;
 
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 
-public class RabbitMQAdaminWrapper {
+public class RabbitMQAdminWrapper {
     private RabbitAdmin rabbitAdmin;
     private String flag;
 

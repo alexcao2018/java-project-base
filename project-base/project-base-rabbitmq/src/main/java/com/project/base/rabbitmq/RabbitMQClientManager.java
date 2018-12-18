@@ -3,7 +3,6 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public class RabbitMQClientManager {
 
 
     @Autowired
-    private List<RabbitMQAdaminWrapper> rabbitMQAdaminWrapperCollection;
+    private List<RabbitMQAdminWrapper> rabbitMQAdminWrapperCollection;
 
     @Autowired
     private List<RabbitMQTemplateWrapper> rabbitMQTemplateWrapperCollection;
@@ -32,7 +31,7 @@ public class RabbitMQClientManager {
      * @return
      */
     public  RabbitAdmin getRabbitAdminByFlag(String flag) {
-        RabbitAdmin selectedRabbitAdmin = rabbitMQAdaminWrapperCollection.stream().filter(x -> flag.equalsIgnoreCase(x.getFlag())).findFirst().get().getRabbitAdmin();
+        RabbitAdmin selectedRabbitAdmin = rabbitMQAdminWrapperCollection.stream().filter(x -> flag.equalsIgnoreCase(x.getFlag())).findFirst().get().getRabbitAdmin();
         return selectedRabbitAdmin;
     }
 
