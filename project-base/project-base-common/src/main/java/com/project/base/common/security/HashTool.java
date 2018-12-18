@@ -68,7 +68,7 @@ public class HashTool {
         }
     }
 
-    public static String getMD5(String str) {
+    public static String md5(String str) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(str.getBytes());
