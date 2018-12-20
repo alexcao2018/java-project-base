@@ -1,6 +1,7 @@
 package com.project.base.common.net;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
@@ -19,7 +20,12 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 public class HttpTool {
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    static {
+        MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
 
     private static final CloseableHttpClient client = HttpClients.createDefault();
 
