@@ -37,4 +37,14 @@ public class JsonTool {
     public static final <T> T deserialize(String json, Class<T> clazz) throws IOException {
         return mapper.readValue(json, clazz);
     }
+
+    public static final String serializeNoException(Object object) {
+        try {
+            return mapper.writeValueAsString(object);
+        } catch (Exception e) {
+            return "Json序列化失败";
+        }
+
+    }
+
 }
