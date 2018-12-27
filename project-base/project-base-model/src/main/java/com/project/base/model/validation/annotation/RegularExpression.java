@@ -14,7 +14,7 @@ public @interface RegularExpression {
     public static final String Decimal = "^([0-9]*|\\d*\\.\\d{1}?\\d*)$";
     public static final String NaturalNumber = "^[0-9]*$";
     public static final String Blank = "/^$|\\s+/";
-
+    public static final String MobileEz = "^[\\d]{11}$";
 
     String pattern() default "";
 
