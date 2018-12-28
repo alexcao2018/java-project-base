@@ -12,6 +12,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -55,12 +56,12 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
      *
      * @param exceptionResolvers
      */
-   /* @Override
+   @Override
     public void extendHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
-        exceptionResolvers.clear();
+        //exceptionResolvers.clear();
         exceptionResolvers.add(0, new GlobalExceptionResolver());
     }
-*/
+
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
 

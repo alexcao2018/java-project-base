@@ -23,13 +23,14 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
 /**
+ * 暂时不用此异常处理类，使用globalExceptionResolver!!!!
  * @EnableWebMvc 加此标记，覆盖springboot 默认处理异常配置
  * 如果为404 400 此类请求，未进入到action 内部，无法匹配异常
  * 需要设置dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
  */
-@ControllerAdvice
+//@ControllerAdvice
 public class GlobalExceptionHandler {
-    private static Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    /*private static Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @Autowired
     private HttpServletRequest httpServletRequest;
@@ -79,6 +80,6 @@ public class GlobalExceptionHandler {
         response.setMessage("接口异常");
         response.setException(message.toString());
         return response;
-    }
+    }*/
 
 }
