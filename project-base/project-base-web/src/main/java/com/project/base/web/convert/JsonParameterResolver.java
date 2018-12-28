@@ -54,7 +54,7 @@ public class JsonParameterResolver extends RequestParamMethodArgumentResolver {
             //从Json中取
             String json=request.getParameter("json");
             if(!StringUtils.isEmpty(json)){
-                Map<String,String> map=objectMapper.readValue(json,Map.class);
+                Map<String,Object> map=objectMapper.readValue(json,Map.class);
                 r= map.get(field);
                 if(r==null){
                     r=map.get(name);
