@@ -8,6 +8,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.annotation.RequestParamMethodArgumentResolver;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -43,7 +44,10 @@ public class JsonParameterResolver extends RequestParamMethodArgumentResolver {
     protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
         Object r= super.resolveName(name, parameter, request);
         if(r==null){
-            r=super.resolveName(name.substring(0,1).toUpperCase()+name.substring(1),parameter,request);
+            r=getParamFromRequest(request,name.substring(0,1).toUpperCase()+name.substring(1));
+            if(r==null){
+                r=getParamFromRequest(request,name.toLowerCase());
+            }
         }
         if(r==null){
             JsonProperty jsonProperty=parameter.getParameterAnnotation(JsonProperty.class);
@@ -62,5 +66,13 @@ public class JsonParameterResolver extends RequestParamMethodArgumentResolver {
             }
         }
         return r;
+    }
+
+    private Object getParamFromRequest(NativeWebRequest request,String name){
+        String[] paramValues = request.getParameterValues(name);
+        if (paramValues != null) {
+            return paramValues.length == 1 ? paramValues[0] : paramValues;
+        }
+        return null;
     }
 }
