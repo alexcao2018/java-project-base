@@ -28,7 +28,6 @@ import java.text.MessageFormat;
  * 需要设置dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
  */
 @ControllerAdvice
-@EnableWebMvc
 public class GlobalExceptionHandler {
     private static Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
