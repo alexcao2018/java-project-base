@@ -26,7 +26,8 @@ public class JsonParameterResolver extends RequestParamMethodArgumentResolver {
 
     public JsonParameterResolver(){
         super(true);
-        objectMapper=(new ObjectMapper()).setTimeZone(TimeZone.getTimeZone("GMT+8")).setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE);
+        //objectMapper=(new ObjectMapper()).setTimeZone(TimeZone.getTimeZone("GMT+8")).setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE);
+        objectMapper=(new ObjectMapper()).setTimeZone(TimeZone.getTimeZone("GMT+8"));
     }
 
 
