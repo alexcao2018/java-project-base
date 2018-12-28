@@ -1,6 +1,7 @@
 package com.project.base.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.base.web.convert.JsonParameterResolver;
 import com.project.base.web.convert.StringToDateConverter;
 import com.project.base.web.interceptor.LogInterceptor;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -32,6 +34,13 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
         AntPathMatcher matcher = new AntPathMatcher();
         matcher.setCaseSensitive(false);
         configurer.setPathMatcher(matcher);
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        JsonParameterResolver jsonParameterResolver=new JsonParameterResolver();
+        argumentResolvers.add(0,jsonParameterResolver);
+        super.addArgumentResolvers(argumentResolvers);
     }
 
     @Override
