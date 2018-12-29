@@ -13,7 +13,6 @@ public class ApplicationContextProvider implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         ApplicationContextProvider.applicationContext = applicationContext;
-        init();
     }
 
     public static ApplicationContext getContext() {
@@ -24,10 +23,10 @@ public class ApplicationContextProvider implements ApplicationContextAware {
         return applicationContext.getBean(cls);
     }
 
-    private void init(){
-        DispatcherServlet dispatcherServlet = getBean(DispatcherServlet.class);
-        dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
-    }
+//    private void init(){
+//        DispatcherServlet dispatcherServlet = getBean(DispatcherServlet.class);
+//        dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
+//    }
 
 
 }

@@ -4,7 +4,6 @@ import com.project.base.model.annotation.Description;
 import com.project.base.model.validation.annotation.*;
 
 import java.lang.reflect.Field;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.List;
 public class Validation {
 
     /**
-     *
      * @param object 验证对象
      * @param <T>
      * @return
@@ -22,8 +20,7 @@ public class Validation {
     }
 
     /**
-     *
-     * @param object 验证对象
+     * @param object      验证对象
      * @param ignoreField 忽略字段
      * @param <T>
      * @return
@@ -33,8 +30,7 @@ public class Validation {
     }
 
     /**
-     *
-     * @param object 验证对象
+     * @param object             验证对象
      * @param functionValidation 自定义验证接口
      * @param <T>
      * @return
@@ -44,10 +40,9 @@ public class Validation {
     }
 
     /**
-     *
-     * @param object 验证对象
+     * @param object                       验证对象
      * @param functionValidationCollection 自定义验证接口
-     * @param ignoreFieldCollection 忽略字段
+     * @param ignoreFieldCollection        忽略字段
      * @param <T>
      * @return
      */
@@ -148,6 +143,13 @@ public class Validation {
         if (telExpressionAnnotation != null) {
             if (fieldValue == null || !fieldValue.toString().matches(telExpressionAnnotation.pattern())) {
                 errorCollection.add(telExpressionAnnotation.value());
+            }
+        }
+
+        MobileEz mobileEzExpressionAnnotation = field.getAnnotation(MobileEz.class);
+        if (mobileEzExpressionAnnotation != null) {
+            if (fieldValue == null || !fieldValue.toString().matches(mobileEzExpressionAnnotation.pattern())) {
+                errorCollection.add(mobileEzExpressionAnnotation.value());
             }
         }
         return errorCollection;
