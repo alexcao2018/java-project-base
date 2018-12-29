@@ -4,7 +4,7 @@ package com.project.base.dotnet.rpc.context;
  * Created by Yangchao.
  * Date: 2018/12/29
  */
-public class DotnetRpcContextManger {
+public class DotnetRpcContextManager {
 
     private static DotnetRpcContextCache contextCache = new TtlDotnetRpcContextCache();
 
