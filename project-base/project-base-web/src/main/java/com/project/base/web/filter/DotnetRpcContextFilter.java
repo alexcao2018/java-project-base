@@ -2,7 +2,7 @@ package com.project.base.web.filter;
 
 import com.project.base.dotnet.rpc.UrlCityParser;
 import com.project.base.dotnet.rpc.context.DotnetRpcContext;
-import com.project.base.dotnet.rpc.context.DotnetRpcContextManger;
+import com.project.base.dotnet.rpc.context.DotnetRpcContextManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,10 +25,10 @@ public class DotnetRpcContextFilter extends OncePerRequestFilter {
         try {
             String url = request.getRequestURI();
             String city = UrlCityParser.getCityValue(url);
-            DotnetRpcContextManger.save(DotnetRpcContext.Builder.newBuilder().urlCityValue(city).build());
+            DotnetRpcContextManager.save(DotnetRpcContext.Builder.newBuilder().urlCityValue(city).build());
             filterChain.doFilter(request, response);
         } finally {
-            DotnetRpcContextManger.clear();
+            DotnetRpcContextManager.clear();
         }
     }
 }
