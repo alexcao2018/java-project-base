@@ -18,7 +18,7 @@ public class StringToDateConverter
     public Date convert(String source) {
         Date result = null;
         try {
-            result = DateUtils.parseDate(source, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd");
+            result = DateUtils.parseDate(source, new String[]{"yyyy-MM-dd HH:mm:ss.SSS","yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd"});
         } catch (ParseException e) {
             e.printStackTrace();
         }
