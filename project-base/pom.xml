@@ -25,6 +25,7 @@
         <module>project-base-plugin</module>
         <module>project-base-rabbitmq</module>
         <module>project-base-job</module>
+        <module>project-base-dotnet-rpc</module>
     </modules>
     <name>project-base</name>
 
