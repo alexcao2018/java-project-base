@@ -7,7 +7,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SchedulingConfigurerConfig implements SchedulingConfigurer {
+public class SchedulingConfigurerConfiguration implements SchedulingConfigurer {
 
     @Value("${job.poolSize:10}")
     private int poolSize;
