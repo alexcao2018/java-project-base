@@ -34,7 +34,7 @@ public abstract class AbstractQuery<T extends AbstractModel> implements IQuery {
     /**
      * 指定排序的规则（一个枚举 如下，默认ASC）。
      */
-    private OrderDirection orderDirection;
+    private OrderDirection orderDirection = OrderDirection.Asc;
 
     /**
      * 指定当前Query查询是否需要开启读写分离功能（默认是false--兼容现有版本场景）。

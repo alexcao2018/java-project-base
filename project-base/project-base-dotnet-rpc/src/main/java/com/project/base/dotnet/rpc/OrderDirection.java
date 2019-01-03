@@ -6,7 +6,7 @@ public enum OrderDirection {
 
     Asc("Asc", 1),
 
-    Desc("Desc", 1);
+    Desc("Desc", 2);
 
     private String key;
 
