@@ -5,6 +5,8 @@ import com.project.base.web.convert.JsonParameterResolver;
 import com.project.base.web.convert.StringToDateConverter;
 import com.project.base.web.interceptor.LogInterceptor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -13,7 +15,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -22,6 +26,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 @Configuration
+@Order(Ordered.LOWEST_PRECEDENCE - 10)
 public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
@@ -39,8 +44,8 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        JsonParameterResolver jsonParameterResolver=new JsonParameterResolver();
-        argumentResolvers.add(0,jsonParameterResolver);
+        JsonParameterResolver jsonParameterResolver = new JsonParameterResolver();
+        argumentResolvers.add(0, jsonParameterResolver);
         super.addArgumentResolvers(argumentResolvers);
     }
 
@@ -56,7 +61,7 @@ public class BaseWebMvcConfiguration extends WebMvcConfigurerAdapter {
      *
      * @param exceptionResolvers
      */
-   @Override
+    @Override
     public void extendHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
         //exceptionResolvers.clear();
         exceptionResolvers.add(0, new GlobalExceptionResolver());
