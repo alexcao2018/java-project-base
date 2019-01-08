@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DubboConfiguration {
 
-    @Value("${dubbo.protocol.port}")
+    @Value("${dubbo.protocol.port:-1}")
     private String dubboPort;
 
     public String getDubboPort() {
