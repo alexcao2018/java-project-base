@@ -23,7 +23,7 @@ public class DotnetRpcContextFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String url = request.getRequestURI();
+            String url = request.getServletPath();
             String city = UrlCityParser.getCityValue(url);
             DotnetRpcContextManager.save(DotnetRpcContext.Builder.newBuilder().urlCityValue(city).build());
             filterChain.doFilter(request, response);
