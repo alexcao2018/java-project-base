@@ -14,7 +14,6 @@ public class App
         Criteria criteria = Criteria.forClass(App.class);
         criteria.add(Restrictions.eq("p1","zhanghc"));
         criteria.add(Restrictions.ne("p2","10"));
-
         Criterion conjunction = Restrictions.conjunction(
                 Restrictions.eq("p3","zhanghc"),
                 Restrictions.disjunction(
