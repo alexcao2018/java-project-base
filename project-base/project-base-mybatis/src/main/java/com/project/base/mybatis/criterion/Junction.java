@@ -7,6 +7,7 @@ import java.util.Locale;
 
 public class Junction implements Criterion {
 
+    private static final long serialVersionUID = 3764811040014923427L;
     private Nature nature;
 
     private List<Criterion> conditions = new ArrayList<>();

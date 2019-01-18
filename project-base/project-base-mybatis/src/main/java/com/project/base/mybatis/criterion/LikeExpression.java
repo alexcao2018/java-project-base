@@ -5,6 +5,7 @@ import java.util.List;
 
 public class LikeExpression implements Criterion {
 
+    private static final long serialVersionUID = 8042382346520339550L;
     private String propertyName;
     private Object value;
     private boolean ignoreCase;

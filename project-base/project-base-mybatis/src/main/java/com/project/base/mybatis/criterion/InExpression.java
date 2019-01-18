@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 public class InExpression implements Criterion {
+    private static final long serialVersionUID = 8994481501197032010L;
     private String propertyName;
     private Object[] values;
     private static final String sqlFormat = "{0} in ({1})";

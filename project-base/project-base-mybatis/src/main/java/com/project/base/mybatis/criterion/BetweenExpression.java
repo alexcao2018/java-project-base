@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 public class BetweenExpression implements Criterion{
+    private static final long serialVersionUID = -1252205471931834227L;
     private String propertyName;
     private Object low;
     private Object high;

@@ -2,7 +2,9 @@ package com.project.base.mybatis.criterion;
 
 public class Conjunction extends Junction {
 
-    protected Conjunction( Criterion... criterion) {
+    private static final long serialVersionUID = 4568982841323005717L;
+
+    protected Conjunction(Criterion... criterion) {
         super(Nature.AND, criterion);
     }
 }

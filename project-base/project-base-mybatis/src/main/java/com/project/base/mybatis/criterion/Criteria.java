@@ -8,6 +8,7 @@ import java.util.*;
 
 public class Criteria implements Serializable {
 
+    private static final long serialVersionUID = -2654218265471632634L;
     private Class entityClazz;
     private Integer firstResult;
     private Integer maxResult;
