@@ -12,6 +12,15 @@ public class DesTool {
     private static final String key = "8D54E5D0";
 
     public static String decrypt(String message) throws Exception {
+        return decrypt(message, key);
+    }
+
+    public static String encrypt(String message)
+            throws Exception {
+        return encrypt(message, key);
+    }
+
+    public static String decrypt(String message, String key) throws Exception {
         byte[] bytesrc = convertHexString(message);
         Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
         DESKeySpec desKeySpec = new DESKeySpec(key.getBytes("UTF-8"));
@@ -25,7 +34,7 @@ public class DesTool {
         return new String(retByte);
     }
 
-    public static String encrypt(String message)
+    public static String encrypt(String message, String key)
             throws Exception {
         Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
 
@@ -37,6 +46,7 @@ public class DesTool {
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
         return toHexString(cipher.doFinal(message.getBytes("UTF-8"))).toUpperCase();
     }
+
 
     private static byte[] convertHexString(String ss) {
         byte digest[] = new byte[ss.length() / 2];
