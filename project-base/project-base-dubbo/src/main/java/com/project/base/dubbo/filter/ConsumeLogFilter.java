@@ -6,6 +6,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 /*
 
@@ -47,10 +48,16 @@ public class ConsumeLogFilter implements Filter {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         StopWatch stopWatch = StopWatch.createStarted();
-        Result result = invoker.invoke(invocation);
+        Result result  = invoker.invoke(invocation);
+
+        if(result.hasException()){
+            logger.error(MessageFormat.format("dubbo 请求异常:{0},{1}:{2},参数：{3}", result.getException().getMessage(), invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments()), result.getException());
+            return result;
+        }
+
         stopWatch.stop();
         long milliSeconds = stopWatch.getTime(TimeUnit.MILLISECONDS);
-        logger.info("dubbo调用，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
+        logger.info("dubbo 请求异常，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
 
         return result;
     }
