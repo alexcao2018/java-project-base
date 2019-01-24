@@ -57,7 +57,7 @@ public class ConsumeLogFilter implements Filter {
 
         stopWatch.stop();
         long milliSeconds = stopWatch.getTime(TimeUnit.MILLISECONDS);
-        logger.info("dubbo 请求异常，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
+        logger.info("dubbo 请求调用，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
 
         return result;
     }
