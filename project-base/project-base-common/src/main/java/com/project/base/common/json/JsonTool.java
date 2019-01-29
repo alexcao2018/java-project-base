@@ -1,6 +1,7 @@
 package com.project.base.common.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,7 +45,14 @@ public class JsonTool {
         } catch (Exception e) {
             return "Json序列化失败";
         }
+    }
 
+    public static final <T> T deserializeNoException(String json, TypeReference valueTypeRef) {
+        try {
+            return mapper.readValue(json, valueTypeRef);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }
