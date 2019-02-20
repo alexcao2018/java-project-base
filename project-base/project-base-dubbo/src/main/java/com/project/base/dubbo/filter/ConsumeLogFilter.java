@@ -2,11 +2,16 @@ package com.project.base.dubbo.filter;
 
 import com.alibaba.dubbo.common.extension.Activate;
 import com.alibaba.dubbo.rpc.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.base.dubbo.init.ApplicationContextAware4Dubbo;
+import com.project.base.dubbo.init.DubboConfiguration;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 /*
 
@@ -44,20 +49,40 @@ import java.util.concurrent.TimeUnit;
 public class ConsumeLogFilter implements Filter {
 
     private static Logger logger = LoggerFactory.getLogger(ConsumeLogFilter.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
+
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        StopWatch stopWatch = StopWatch.createStarted();
-        Result result  = invoker.invoke(invocation);
 
-        if(result.hasException()){
+        DubboConfiguration dubboConfiguration = ApplicationContextAware4Dubbo.getContext().getBean(DubboConfiguration.class);
+
+        StopWatch stopWatch = StopWatch.createStarted();
+        Result result = invoker.invoke(invocation);
+
+        if (result.hasException()) {
             logger.error(MessageFormat.format("dubbo 请求异常:{0},{1}:{2},参数：{3}", result.getException().getMessage(), invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments()), result.getException());
             return result;
         }
 
         stopWatch.stop();
         long milliSeconds = stopWatch.getTime(TimeUnit.MILLISECONDS);
-        logger.info("dubbo 请求调用，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
+
+        boolean isNotExclude = true;
+        if (dubboConfiguration.getRecordInvokeExcludeMethod() != null) {
+            isNotExclude = dubboConfiguration.getRecordInvokeExcludeMethod().stream().filter(x -> x.equalsIgnoreCase(invocation.getMethodName())).count() == 0;
+        }
+
+        if (dubboConfiguration.isRecordInvokeResult() && isNotExclude) {
+            try {
+                String jsonResult = mapper.writeValueAsString(result.getValue());
+                logger.info("dubbo 请求调用，时长:{},{}:{},参数：{},结果：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments(), jsonResult);
+            } catch (JsonProcessingException e) {
+                logger.error(e.getMessage(), e);
+            }
+        } else {
+            logger.info("dubbo 请求调用，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
+        }
 
         return result;
     }
