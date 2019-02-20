@@ -16,6 +16,7 @@ public class CommonResponse<T> implements Serializable {
 
     public static CommonResponse success(Object data) {
         CommonResponse response = new CommonResponse();
+        response.setMessage("");
         response.setData(data);
         response.setError(0);
         return response;
