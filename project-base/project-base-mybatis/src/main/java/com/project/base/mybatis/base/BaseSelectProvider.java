@@ -6,6 +6,7 @@ import com.project.base.mybatis.mapping.DBInfoHelper;
 import com.project.base.mybatis.mapping.TableInfo;
 import com.project.base.model.PageInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ResultMap;
 
@@ -22,6 +23,14 @@ public class BaseSelectProvider {
         String sqlFormat = "select * from {0} where {1}=#'{id}'";
         TableInfo tableInfo = DBInfoHelper.getTableInfo(modelClass);
         return MessageFormat.format(sqlFormat, tableInfo.getName(), tableInfo.getPrimaryKeyColumn().getName());
+    }
+
+    public String getFirst(Map<String, Object> map) throws NoSuchFieldException, IllegalAccessException {
+        String sqlFormat = "select {0} from {1} {2} limit 1";
+        Criteria criteria = (Criteria) map.get("criteria");
+        TableInfo tableInfo = DBInfoHelper.getTableInfo(criteria.getEntityClazz());
+        return MessageFormat.format(sqlFormat, criteria.getProjectionSqlString(), tableInfo.getName(), criteria.toSqlString());
+
     }
 
     public String listBy(Map<String, Object> map) throws NoSuchFieldException, IllegalAccessException {

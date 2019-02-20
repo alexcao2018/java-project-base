@@ -15,6 +15,9 @@ public interface IBaseMapper<T extends IEntity<T, PK>, PK> {
     @SelectProvider(type = BaseSelectProvider.class, method = "getById")
     T getById(@Param("id") PK id);
 
+    @SelectProvider(type = BaseSelectProvider.class, method = "getFirst")
+    T getFirst(@Param("criteria") Criteria criteria);
+
     @SelectProvider(type = BaseSelectProvider.class, method = "listBy")
     List<T> listBy(@Param("criteria") Criteria criteria);
 
