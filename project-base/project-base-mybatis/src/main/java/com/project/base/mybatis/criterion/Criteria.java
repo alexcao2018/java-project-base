@@ -127,7 +127,7 @@ public class Criteria implements Serializable {
         return sql.toString();
     }
 
-    public String repalceParameter2PlaceHolder() {
+    public String replaceParameter2PlaceHolder() {
         String toSql = toSqlString();
         for (String parameter : parameterCollection) {
             // TODO replace {} , 需要使用replaceAll 方法，替换所有 ？ 需要思考下

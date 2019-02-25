@@ -63,7 +63,7 @@ public class CriteriaInterceptor implements Interceptor {
                 criteria.setMaxResult(pageInfo.getPageSize());
             }
 
-            String criteriaSql = " select " + criteria.getProjectionSqlString() + " from ( " + sql + ") __t__ " + criteria.repalceParameter2PlaceHolder();
+            String criteriaSql = " select " + criteria.getProjectionSqlString() + " from ( " + sql + ") __t__ " + criteria.replaceParameter2PlaceHolder();
 
             if (criteria.getParameterCollection().size() > 0) {
                 if (!byCriteriaConcurrentHashMap.containsKey(criteriaSql)) {
@@ -94,7 +94,7 @@ public class CriteriaInterceptor implements Interceptor {
             metaObject.setValue("delegate.boundSql.sql", criteriaSql);
 
             if (pageInfo != null) {
-                String countSql = " select count(*) from ( " + sql + ") __t__ " + criteria.repalceParameter2PlaceHolder();
+                String countSql = " select count(*) from ( " + sql + ") __t__ " + criteria.replaceParameter2PlaceHolder();
                 pageInfo.setTotalCount(selectCount(invocation, metaObject, countSql));
             }
         }

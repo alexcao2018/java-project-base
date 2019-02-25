@@ -112,4 +112,26 @@
             /* 使用pageHelper 进行分页 */
             Page<TbTab> pageResult = PageHelper.startPage(1, 10)
                     .doSelectPage(() -> daoTbTab.selectTestPageHelper(2));
+二、事务操作
+   1、 在方法上加@Transactional , 通过spring 进行事务管理
+   2、 显示code 管理
+   
+       @Autowired
+       private PlatformTransactionManager transactionManager;
+       
+       事务开始：
+        TransactionDefinition definition = new DefaultTransactionDefinition();
+        TransactionStatus transactionStatus = transactionManager.getTransaction(definition);
+        
+        执行逻辑
+        
+        事务提交
+        transactionManager.commit(transactionStatus);
+        
+        事务回滚
+        transactionManager.rollback(transactionStatus);
+        
+        
+        
+        
     
