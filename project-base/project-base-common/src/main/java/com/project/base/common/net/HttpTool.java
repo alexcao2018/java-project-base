@@ -38,6 +38,9 @@ public class HttpTool {
     public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz, Integer timeout)
             throws IOException {
         HttpEntity httpEntity = getEntity(url, params, timeout);
+        if (clazz == String.class) {
+            return (T) EntityUtils.toString(httpEntity);
+        }
         return MAPPER.readValue(EntityUtils.toString(httpEntity), clazz);
     }
 
@@ -89,6 +92,11 @@ public class HttpTool {
         httpGet.setConfig(config);
         response = client.execute(httpGet);
         HttpEntity entity = response.getEntity();
+
+        if (clazz == String.class) {
+            return (T) EntityUtils.toString(entity);
+        }
+
         return MAPPER.readValue(EntityUtils.toString(entity), clazz);
     }
 
