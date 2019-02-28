@@ -1,6 +1,7 @@
 package com.project.base.common.net;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
@@ -36,6 +37,17 @@ public class HttpTool {
 
     public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz, Integer timeout)
             throws IOException {
+        HttpEntity httpEntity = getEntity(url, params, timeout);
+        return MAPPER.readValue(EntityUtils.toString(httpEntity), clazz);
+    }
+
+    public static final <T> T post(String url, Map<String, Object> params, TypeReference valueTypeRef, Integer timeout)
+            throws IOException {
+        HttpEntity httpEntity = getEntity(url, params, timeout);
+        return MAPPER.readValue(EntityUtils.toString(httpEntity), valueTypeRef);
+    }
+
+    private static HttpEntity getEntity(String url, Map<String, Object> params, Integer timeout) throws IOException {
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(timeout).setConnectionRequestTimeout(timeout)
                 .setSocketTimeout(timeout).build();
@@ -45,9 +57,9 @@ public class HttpTool {
         httpPost.addHeader("Content-Type", "application/json;charset=UTF-8");
         httpPost.setEntity(generatePostEntity(params));
         response = client.execute(httpPost);
-        HttpEntity httpEntity = response.getEntity();
-        return MAPPER.readValue(EntityUtils.toString(httpEntity), clazz);
+        return response.getEntity();
     }
+
 
     private static StringEntity generatePostEntity(Map<String, Object> params) throws JsonProcessingException {
 
