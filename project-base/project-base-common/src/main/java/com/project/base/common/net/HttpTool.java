@@ -51,13 +51,20 @@ public class HttpTool {
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(timeout).setConnectionRequestTimeout(timeout)
                 .setSocketTimeout(timeout).build();
-        CloseableHttpResponse response;
+        CloseableHttpResponse response = null;
         HttpPost httpPost = new HttpPost(url);
         httpPost.setConfig(config);
         httpPost.addHeader("Content-Type", "application/json;charset=UTF-8");
         httpPost.setEntity(generatePostEntity(params));
-        response = client.execute(httpPost);
-        return response.getEntity();
+        try {
+            response = client.execute(httpPost);
+            return response.getEntity();
+        } finally {
+            if (response != null)
+                response.close();
+            httpPost.releaseConnection();
+        }
+
     }
 
 
@@ -84,12 +91,19 @@ public class HttpTool {
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(timeout).setConnectionRequestTimeout(timeout)
                 .setSocketTimeout(timeout).build();
-        CloseableHttpResponse response;
+        CloseableHttpResponse response = null;
         HttpGet httpGet = new HttpGet(uri);
         httpGet.setConfig(config);
-        response = client.execute(httpGet);
-        HttpEntity entity = response.getEntity();
-        return MAPPER.readValue(EntityUtils.toString(entity), clazz);
+        try {
+            response = client.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            return MAPPER.readValue(EntityUtils.toString(entity), clazz);
+        } finally {
+            if (response != null)
+                response.close();
+            httpGet.releaseConnection();
+        }
+
     }
 
     public static final <T> T get(String url, Map<String, String> params, Class<T> clazz, Integer timeout)
