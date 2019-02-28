@@ -13,6 +13,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
@@ -24,11 +25,16 @@ public class HttpTool {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    private static CloseableHttpClient client = null;
+
     static {
         MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        PoolingHttpClientConnectionManager cm = null;
+        cm = new PoolingHttpClientConnectionManager();
+        cm.setMaxTotal(200);
+        cm.setDefaultMaxPerRoute(50);
+        client = HttpClients.custom().setConnectionManager(cm).build();
     }
-
-    private static final CloseableHttpClient client = HttpClients.createDefault();
 
     public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz)
             throws IOException {
@@ -62,10 +68,11 @@ public class HttpTool {
         try {
             response = client.execute(httpPost);
             return response.getEntity();
-        } finally {
+        } catch (IOException e) {
             if (response != null)
                 response.close();
             httpPost.releaseConnection();
+            throw e;
         }
 
     }
@@ -104,10 +111,11 @@ public class HttpTool {
                 return (T) EntityUtils.toString(entity);
             }
             return MAPPER.readValue(EntityUtils.toString(entity), clazz);
-        } finally {
+        } catch (IOException e) {
             if (response != null)
                 response.close();
             httpGet.releaseConnection();
+            throw e;
         }
 
     }
