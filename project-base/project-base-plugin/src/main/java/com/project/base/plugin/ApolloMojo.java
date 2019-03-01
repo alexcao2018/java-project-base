@@ -17,7 +17,6 @@ package com.project.base.plugin;
  */
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -49,6 +48,9 @@ import static java.lang.System.out;
                         <goals>
                             <goal>apollo-config</goal>
                         </goals>
+                        <configuration>
+							<enableDev>true</enableDev>
+						</configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -71,8 +73,8 @@ public class ApolloMojo extends AbstractMojo {
     @Parameter(property = "sourceDirectory", defaultValue = "${project.build.sourceDirectory}", readonly = true, required = true)
     private String sourceDirectory;
 
-    @Parameter(property = "sDirectory", defaultValue = "${project.build.directory}", readonly = true, required = true)
-    private String sDirectory;
+    @Parameter
+    private boolean enableDev;
 
     private Map<String, String> profileMap = new HashMap<>();
     private String applicationYmlName = "application.yml";
@@ -121,15 +123,19 @@ public class ApolloMojo extends AbstractMojo {
         /* 将target 目录中的application.yml 文件替换为 apollo 配置
         ----------------------------------------------------------------
          */
-        InputStream resourceAsStream = ApolloMojo.class.getClassLoader().getResourceAsStream("application.yml");
-        try {
-            String apolloYaml = IOUtils.toString(resourceAsStream, "UTF-8");
-            apolloYaml = apolloYaml.replace("${id}",project.getParent().getArtifact().getArtifactId());
-            Path file = Paths.get(outputDirectory.getAbsolutePath() + File.separator + applicationYmlName);
-            byte[] bytes = apolloYaml.getBytes(Charset.forName("UTF-8"));
-            Files.write(file, bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
+        String activeProfile = project.getActiveProfiles().get(0).getId();
+
+        if (!activeProfile.equalsIgnoreCase("dev") || enableDev) {
+            InputStream resourceAsStream = ApolloMojo.class.getClassLoader().getResourceAsStream("application.yml");
+            try {
+                String apolloYaml = IOUtils.toString(resourceAsStream, "UTF-8");
+                apolloYaml = apolloYaml.replace("${id}", project.getParent().getArtifact().getArtifactId());
+                Path file = Paths.get(outputDirectory.getAbsolutePath() + File.separator + applicationYmlName);
+                byte[] bytes = apolloYaml.getBytes(Charset.forName("UTF-8"));
+                Files.write(file, bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 
