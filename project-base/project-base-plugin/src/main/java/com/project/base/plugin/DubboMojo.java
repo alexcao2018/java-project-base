@@ -36,8 +36,8 @@ import java.util.List;
 
             <plugin>
                 <groupId>com.project.base</groupId>
-                <artifactId>project-base-plugin-dubbo</artifactId>
-                <version>1.0.0</version>
+                <artifactId>project-base-plugin</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>

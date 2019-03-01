@@ -1,0 +1,10 @@
+# 应用信息
+apollo:
+  bootstrap:
+    enabled: true
+    namespaces: application
+
+app:
+  id: ${id}
+
+

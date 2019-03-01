@@ -225,6 +225,15 @@
                 <version>1.11</version>
             </dependency>
 
+            <!-- apollo 配置中心 -->
+
+            <dependency>
+                <groupId>com.ctrip.framework.apollo</groupId>
+                <artifactId>apollo-client</artifactId>
+                <version>1.2.0</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
