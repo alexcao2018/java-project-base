@@ -73,7 +73,7 @@ public class ApolloMojo extends AbstractMojo {
     @Parameter(property = "sourceDirectory", defaultValue = "${project.build.sourceDirectory}", readonly = true, required = true)
     private String sourceDirectory;
 
-    @Parameter
+    @Parameter(property = "enableDev",  required = false)
     private boolean enableDev;
 
     private Map<String, String> profileMap = new HashMap<>();
