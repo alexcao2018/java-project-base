@@ -2,7 +2,7 @@ node{
 
     def dockerImageName = 'project-base-8-jdk-alpine'
     def dockerImageModule = 'api-mall'
-    def dockerImageVersion = '1.0.0'
+    def dockerImageVersion = '1.0.1'
     def harborServer = 'harbor.suiyi.com.cn'
     def harborUser = 'admin'
     def harborPwd  = 'Sy123456'
