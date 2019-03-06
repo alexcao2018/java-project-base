@@ -1,8 +1,5 @@
 FROM openjdk:8-jdk-alpine
 
-# app jar file
-ENV APP_JAR_FILE @app_jar_file
-
 # ting yun
 ENV TINGYUN_JAR_FILE @tingyun_jar_file
 
@@ -12,6 +9,5 @@ RUN apk add --no-cache tzdata && \
     echo "Asia/Shanghai" > /etc/timezone && \
     apk del tzdata
 
-# add file to /opt/app direcotry
-ADD $APP_JAR_FILE /opt/app/
+#  add file to /opt/app direcotry
 ADD $TINGYUN_JAR_FILE /opt/app/
