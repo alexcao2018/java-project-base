@@ -1,0 +1,38 @@
+node{
+
+    def dockerImageName = 'project-base-8-jdk-alpine'
+    def dockerImageModule = 'api-mall'
+    def dockerImageVersion = '1.0.0'
+    def harborServer = 'harbor.suiyi.com.cn'
+    def harborUser = 'admin'
+    def harborPwd  = 'Sy123456'
+
+	def tingyunJarUrl = 'http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-releases/com/tingyun/tingyun-agent-java/2.6.0/tingyun-agent-java-2.6.0.jar'
+    def tingyunJarName = 'tingyun-agent-java.jar'
+
+    def dockerImageTag = harborServer + '/' + dockerImageModule + '/' + dockerImageName + ':' + dockerImageVersion
+    def workspace = sh (
+            script: 'cd ../${JOB_NAME}@script/project-base/project-base-docker/ && pwd',
+            returnStdout: true
+    ).trim()
+
+    dir(workspace){
+
+        stage('Docker build') {
+            echo 'docker build'
+            echo 'download tingyun-agent-java.jar'
+            sh "curl ${tingyunJarUrl} --output ci/${tingyunJarName}"
+
+            sh "cd ci && sed -i 's/@tingyun_jar_file/${tingyunJarName}/g' Dockerfile "
+            sh "cd ci && docker build -t ${dockerImageTag} ."
+        }
+
+        stage('Docker push') {
+            echo 'Docker push'
+            sh "docker login -u ${harborUser} -p ${harborPwd} ${harborServer}"
+            sh "docker push ${dockerImageTag}"
+            sh "docker logout ${harborServer}"
+        }
+    }
+
+}
