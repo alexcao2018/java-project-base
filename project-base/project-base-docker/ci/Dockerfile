@@ -13,8 +13,6 @@ RUN apk add --no-cache tzdata && \
     apk del tzdata
 
 RUN apk add --no-cache tini
-# Tini is now available at /sbin/tini
-ENTRYPOINT ["/sbin/tini", "--"]
 
 #  add file to /opt/app direcotry
 ADD $ARTHAS_JAR_FILE /opt/app/
