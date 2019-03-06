@@ -7,8 +7,14 @@ node{
     def harborUser = 'admin'
     def harborPwd  = 'Sy123456'
 
+    // ting yun
 	def tingyunJarUrl = 'http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-releases/com/tingyun/tingyun-agent-java/2.6.0/tingyun-agent-java-2.6.0.jar'
     def tingyunJarName = 'tingyun-agent-java.jar'
+
+    // arthas-boot
+    def arthasJarUrl = "https://alibaba.github.io/arthas/arthas-boot.jar"
+    def arthasJarName = "arthas-boot.jar"
+
 
     def dockerImageTag = harborServer + '/' + dockerImageModule + '/' + dockerImageName + ':' + dockerImageVersion
     def workspace = sh (
@@ -20,10 +26,15 @@ node{
 
         stage('Docker build') {
             echo 'docker build'
+
+            echo 'download arthas-boot.jar'
+            sh "curl ${arthasJarUrl} --output ci/${arthasJarName}"
+            sh "cd ci && sed -i 's/@arthas_jar_file/${arthasJarName}/g' Dockerfile "
+
             echo 'download tingyun-agent-java.jar'
             sh "curl ${tingyunJarUrl} --output ci/${tingyunJarName}"
-
             sh "cd ci && sed -i 's/@tingyun_jar_file/${tingyunJarName}/g' Dockerfile "
+
             sh "cd ci && docker build -t ${dockerImageTag} ."
         }
 

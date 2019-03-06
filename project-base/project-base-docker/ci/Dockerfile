@@ -1,6 +1,9 @@
 FROM openjdk:8-jdk-alpine
 
 # ting yun
+ENV ARTHAS_JAR_FILE @arthas_jar_file
+
+# ting yun
 ENV TINGYUN_JAR_FILE @tingyun_jar_file
 
 # set time zone
@@ -10,4 +13,5 @@ RUN apk add --no-cache tzdata && \
     apk del tzdata
 
 #  add file to /opt/app direcotry
+ADD $ARTHAS_JAR_FILE /opt/app/
 ADD $TINGYUN_JAR_FILE /opt/app/
