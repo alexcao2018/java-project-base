@@ -27,6 +27,9 @@ node{
         stage('Docker build') {
             echo 'docker build'
 
+            echo '************** remove old images  **************'
+            sh "docker rmi \$(docker images --format '{{.Repository}}:{{.Tag}}' | grep '${dockerImageName}:${dockerImageVersion}')"
+
             echo 'download arthas-boot.jar'
             sh "curl ${arthasJarUrl} --output ci/${arthasJarName}"
             sh "cd ci && sed -i 's/@arthas_jar_file/${arthasJarName}/g' Dockerfile "
