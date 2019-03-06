@@ -12,6 +12,10 @@ RUN apk add --no-cache tzdata && \
     echo "Asia/Shanghai" > /etc/timezone && \
     apk del tzdata
 
+RUN apk add --no-cache tini
+# Tini is now available at /sbin/tini
+ENTRYPOINT ["/sbin/tini", "--"]
+
 #  add file to /opt/app direcotry
 ADD $ARTHAS_JAR_FILE /opt/app/
 ADD $TINGYUN_JAR_FILE /opt/app/
