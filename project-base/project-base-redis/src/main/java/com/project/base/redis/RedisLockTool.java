@@ -1,8 +1,5 @@
 package com.project.base.redis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class RedisLockTool {
 
     private RedisClient redisClient;
@@ -20,14 +17,16 @@ public class RedisLockTool {
     }
 
 
-    public boolean setNX(final String key, final String value) {
+    public boolean setNX(final String key, final Object value) {
         return redisClient.setIfAbsent(key, value, 30);
     }
 
     public boolean lock() {
         long expires = System.currentTimeMillis();
         String expiresStr = String.valueOf(expires);
-        if (this.setNX(lockKey, expiresStr)) {
+        LockModel model = new LockModel();
+        model.setKey(expiresStr);
+        if (this.setNX(lockKey, model)) {
             locked = true;
             return true;
         }
