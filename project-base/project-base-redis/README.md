@@ -53,4 +53,5 @@
        Jedis jedis = redisClient.getJedisPool().getResource();
        jedis.set("key", JsonTool.serialize(datasource));
        jedis.get("key");
+       jedis.close();
        
