@@ -3,6 +3,8 @@ package com.project.base.redis;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import redis.clients.jedis.Jedis;
+import redis.clients.util.Pool;
 
 import java.util.List;
 import java.util.Map;
@@ -10,8 +12,9 @@ import java.util.Set;
 
 public interface RedisClient {
 
-
     RedisTemplate<String, Object> getRedisTemplate();
+
+    Pool<Jedis> getJedisPool();
 
     /**
      * 通用数据类型接口
