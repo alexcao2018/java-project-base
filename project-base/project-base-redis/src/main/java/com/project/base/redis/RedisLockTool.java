@@ -17,16 +17,15 @@ public class RedisLockTool {
     }
 
 
-    public boolean setNX(final String key, final Object value) {
+    public boolean setNX(final String key, final String value) {
         return redisClient.setIfAbsent(key, value, 30);
     }
 
     public boolean lock() {
         long expires = System.currentTimeMillis();
         String expiresStr = String.valueOf(expires);
-        LockModel model = new LockModel();
-        model.setKey(expiresStr);
-        if (this.setNX(lockKey, model)) {
+
+        if (this.setNX(lockKey, expiresStr)) {
             locked = true;
             return true;
         }
