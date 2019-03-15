@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
+import redis.clients.util.Pool;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,12 +19,23 @@ public class RedisClientImpl implements RedisClient {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Autowired
+    private Pool<Jedis> jedisPool;
+
     public RedisTemplate<String, Object> getRedisTemplate() {
         return redisTemplate;
     }
 
     public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
+    }
+
+    public Pool<Jedis> getJedisPool() {
+        return jedisPool;
+    }
+
+    public void setJedisPool(Pool<Jedis> jedisPool) {
+        this.jedisPool = jedisPool;
     }
 
     /**
@@ -679,5 +692,4 @@ public class RedisClientImpl implements RedisClient {
         ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
         return zSetOperations.reverseRangeByScoreWithScores(key, min, max, offset, count);
     }
-
 }

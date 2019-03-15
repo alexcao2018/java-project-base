@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.ArrayList;
@@ -66,12 +68,14 @@ public class RedisConfig {
 
     /**
      * 多个redis connection factory
+     *
      * @return
      */
     @Bean
-    public List<RedisConnectionFactoryWrapper> redisConnectionFactoryWrapperCollection() {
+    public List<RedisConnectionFactoryWrapper> redisConnectionFactoryWrapperCollection() throws IllegalAccessException {
 
         List<RedisConnectionFactoryWrapper> redisConnectionFactoryWrapperCollection = new ArrayList<>();
+
 
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxIdle(pool.getMaxIdle());
@@ -84,6 +88,8 @@ public class RedisConfig {
         poolConfig.setTestWhileIdle(true);
         poolConfig.setNumTestsPerEvictionRun(-1);
         poolConfig.setTimeBetweenEvictionRunsMillis(30000);
+
+
 
         if (hosts != null && hosts.size() > 0) {
             for (RedisHost redisHost : hosts) {
@@ -109,6 +115,7 @@ public class RedisConfig {
 
     /**
      * 多个redis template 模板对象
+     *
      * @param redisConnectionFactoryWrapperCollection
      * @return
      */
@@ -118,49 +125,37 @@ public class RedisConfig {
         List<RedisTemplateWrapper> redisTemplateWrapperCollection = new ArrayList<>();
 
         for (RedisConnectionFactoryWrapper redisConnectionFactoryWrapper : redisConnectionFactoryWrapperCollection) {
-            /* StringRedisTemplate的构造方法中默认设置了stringSerializer
-            ---------------------------------------------
-             */
-            RedisTemplate<String, Object> template = new RedisTemplate<>();
-            StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-            template.setKeySerializer(stringRedisSerializer);
-            template.setHashKeySerializer(stringRedisSerializer);
-
-            Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-            objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-
-            jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
-            template.setDefaultSerializer(jackson2JsonRedisSerializer);
-
-            template.setConnectionFactory(redisConnectionFactoryWrapper.getRedisConnectionFactory());
-            template.afterPropertiesSet();
+            RedisTemplate<String, Object> template = createRedisTemplate(redisConnectionFactoryWrapper.getRedisConnectionFactory());
 
             /* 创建redisTemplateWrapper
             ---------------------------------------------
              */
-
             RedisTemplateWrapper redisTemplateWrapper = new RedisTemplateWrapper();
             redisTemplateWrapper.setRedisTemplate(template);
+            redisTemplateWrapper.setRedisConnectionFactory(redisConnectionFactoryWrapper.getRedisConnectionFactory());
             redisTemplateWrapper.setFlag(redisConnectionFactoryWrapper.getFlag());
             redisTemplateWrapperCollection.add(redisTemplateWrapper);
+
         }
         return redisTemplateWrapperCollection;
     }
 
     /**
      * 多个redis client 对象
+     *
      * @param redisTemplateWrapperCollection
      * @return
      */
     @Bean
-    public List<RedisClientWrapper> redisClientWrapperCollection(List<RedisTemplateWrapper> redisTemplateWrapperCollection) {
+    public List<RedisClientWrapper> redisClientWrapperCollection(List<RedisTemplateWrapper> redisTemplateWrapperCollection) throws IllegalAccessException {
 
         List<RedisClientWrapper> redisClientWrapperCollection = new ArrayList<>();
         for (RedisTemplateWrapper redisTemplateWrapper : redisTemplateWrapperCollection) {
             RedisClientImpl redisClient = new RedisClientImpl();
             redisClient.setRedisTemplate(redisTemplateWrapper.getRedisTemplate());
+
+            redis.clients.util.Pool<Jedis> jedisPool = (redis.clients.util.Pool<Jedis>) FieldUtils.readField(redisTemplateWrapper.getRedisConnectionFactory(), "pool", true);
+            redisClient.setJedisPool(jedisPool);
 
             RedisClientWrapper redisClientWrapper = new RedisClientWrapper();
             redisClientWrapper.setRedisClient(redisClient);
@@ -170,18 +165,28 @@ public class RedisConfig {
         }
 
         return redisClientWrapperCollection;
-
-
     }
 
 
     /**
      * 默认redis template
+     *
      * @param redisConnectionFactory
      * @return
      */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = createRedisTemplate(redisConnectionFactory);
+        return template;
+    }
+
+    @Bean
+    public redis.clients.util.Pool<Jedis> jedis(RedisConnectionFactory redisConnectionFactory) throws IllegalAccessException {
+        redis.clients.util.Pool<Jedis> jedisPool = (redis.clients.util.Pool<Jedis>) FieldUtils.readField(redisConnectionFactory, "pool", true);
+        return jedisPool;
+    }
+
+    private RedisTemplate<String, Object> createRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         //StringRedisTemplate的构造方法中默认设置了stringSerializer
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         //set flag serializer
@@ -200,6 +205,7 @@ public class RedisConfig {
 
         template.setConnectionFactory(redisConnectionFactory);
         template.afterPropertiesSet();
+
         return template;
     }
 
