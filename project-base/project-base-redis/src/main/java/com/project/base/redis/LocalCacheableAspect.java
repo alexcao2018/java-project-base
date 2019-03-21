@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.project.base.redis.annotation.LocalCacheable;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -51,8 +52,10 @@ public class LocalCacheableAspect {
         if (loadingCache != null) {
             Object obj = loadingCache.getIfPresent(cacheKey);
             if (obj != null) {
+
                 return obj;
             }
+
         } else {
             loadingCache = Caffeine.newBuilder()
                     .expireAfterWrite(redisCacheable.localCacheTime(), TimeUnit.SECONDS)
@@ -62,6 +65,7 @@ public class LocalCacheableAspect {
             loadingCacheMap.put(method.getName(), loadingCache);
         }
         try {
+
             result = joinPoint.proceed();
         } catch (Throwable throwable) {
             logger.error(throwable.getMessage(), throwable);
@@ -71,7 +75,7 @@ public class LocalCacheableAspect {
     }
 
     @Before("pointcutCacheEvictMethod()")
-    public void beforeLocalCacheEvict(ProceedingJoinPoint joinPoint) {
+    public void beforeLocalCacheEvict(JoinPoint joinPoint) {
         Method method = cacheHelper.getMethod(joinPoint);
         LocalCacheable redisCacheable = method.getAnnotation(LocalCacheable.class);
         String cacheKey = getCacheKey(redisCacheable, joinPoint, method);
@@ -80,7 +84,7 @@ public class LocalCacheableAspect {
         loadingCacheMap.remove(method.getName());
     }
 
-    private String getCacheKey(LocalCacheable localCacheable, ProceedingJoinPoint joinPoint, Method method) {
+    private String getCacheKey(LocalCacheable localCacheable, JoinPoint joinPoint, Method method) {
         String cachePrefix = localCacheable.cacheName();
         String cacheSuffix = cacheHelper.getSuffixByGenerator(joinPoint, localCacheable.key(), localCacheable.keyGenerator(), method);
         String splitter = localCacheable.splitter();
