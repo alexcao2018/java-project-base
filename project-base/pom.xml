@@ -27,6 +27,7 @@
         <module>project-base-job</module>
         <module>project-base-dotnet-rpc</module>
         <module>project-base-docker</module>
+        <module>project-base-trace</module>
     </modules>
     <name>project-base</name>
 

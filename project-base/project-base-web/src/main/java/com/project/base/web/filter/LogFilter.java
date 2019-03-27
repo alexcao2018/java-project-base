@@ -1,7 +1,9 @@
 package com.project.base.web.filter;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.project.base.common.enums.EnumHttpRequestKey;
 import com.project.base.model.net.HttpRequestInfo;
+import com.project.base.trace.TraceIdGenerator;
 import com.project.base.web.annotation.LogRequest;
 import com.project.base.web.annotation.LogResponse;
 import org.apache.commons.io.IOUtils;
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -47,6 +50,11 @@ public class LogFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
+        /* 设置trace id
+        ----------------------------------------------------------
+         */
+        TraceIdGenerator.generateTraceId();
 
         boolean isCacheResponse = isLogResponse(request);
         String responseContent = StringUtils.EMPTY;
@@ -81,14 +89,14 @@ public class LogFilter extends OncePerRequestFilter {
 
         String httpRequestLog = StringUtils.EMPTY;
         if (isCacheResponse) {
-            httpRequestLog = MessageFormat.format("{3},请求url:{1},执行时间:{0}{2},请求响应:{4}"
+            httpRequestLog = MessageFormat.format("{3},请求url:【{1}】,执行时间:{0}{2},请求响应:{4}"
                     , milliSeconds
                     , httpRequestInfo.getUrl()
                     , StringUtils.isBlank(httpRequestInfo.getBody()) ? StringUtils.EMPTY : ",请求体:" + httpRequestInfo.getBody()
                     , httpRequestInfo.getMethod()
                     , responseContent);
         } else {
-            httpRequestLog = MessageFormat.format("{3},请求url:{1},执行时间:{0}{2}"
+            httpRequestLog = MessageFormat.format("{3},请求url:【{1}】,执行时间:{0}{2}"
                     , milliSeconds
                     , httpRequestInfo.getUrl()
                     , StringUtils.isBlank(httpRequestInfo.getBody()) ? StringUtils.EMPTY : ",请求体:" + httpRequestInfo.getBody()
