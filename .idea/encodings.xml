@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding">
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
     <file url="file://$PROJECT_DIR$/project-base" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-base-dependency" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/project-base/project-base-biz" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/project-base/project-base-common" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-base/project-base-docker" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-base/project-base-dotnet-rpc" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/project-base/project-base-dubbo" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-base/project-base-job" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/project-base/project-base-model" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/project-base/project-base-mybatis" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/project-base/project-base-plugin" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-base/project-base-rabbitmq" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-base/project-base-redis" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-base/project-base-rpc-patch-log" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/project-base/project-base-trace" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/project-base/project-base-web" charset="UTF-8" />
   </component>
 </project>

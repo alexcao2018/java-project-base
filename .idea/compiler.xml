@@ -8,10 +8,17 @@
         <outputRelativeToContentRoot value="true" />
         <module name="project-base-biz" />
         <module name="project-base-common" />
+        <module name="project-base-docker" />
+        <module name="project-base-dotnet-rpc" />
         <module name="project-base-dubbo" />
+        <module name="project-base-job" />
         <module name="project-base-model" />
         <module name="project-base-mybatis" />
         <module name="project-base-plugin" />
+        <module name="project-base-rabbitmq" />
+        <module name="project-base-redis" />
+        <module name="project-base-rpc-patch-log" />
+        <module name="project-base-trace" />
         <module name="project-base-web" />
       </profile>
     </annotationProcessing>
@@ -19,11 +26,18 @@
       <module name="project-base" target="1.8" />
       <module name="project-base-biz" target="1.8" />
       <module name="project-base-common" target="1.8" />
-      <module name="project-base-dependency" target="1.5" />
+      <module name="project-base-dependency" target="1.8" />
+      <module name="project-base-docker" target="1.8" />
+      <module name="project-base-dotnet-rpc" target="1.8" />
       <module name="project-base-dubbo" target="1.8" />
+      <module name="project-base-job" target="1.8" />
       <module name="project-base-model" target="1.8" />
       <module name="project-base-mybatis" target="1.8" />
       <module name="project-base-plugin" target="1.8" />
+      <module name="project-base-rabbitmq" target="1.8" />
+      <module name="project-base-redis" target="1.8" />
+      <module name="project-base-rpc-patch-log" target="1.8" />
+      <module name="project-base-trace" target="1.8" />
       <module name="project-base-web" target="1.8" />
     </bytecodeTargetLevel>
   </component>

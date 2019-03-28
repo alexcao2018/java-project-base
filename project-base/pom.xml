@@ -28,6 +28,7 @@
         <module>project-base-dotnet-rpc</module>
         <module>project-base-docker</module>
         <module>project-base-trace</module>
+        <module>project-base-rpc-patch-log</module>
     </modules>
     <name>project-base</name>
 
