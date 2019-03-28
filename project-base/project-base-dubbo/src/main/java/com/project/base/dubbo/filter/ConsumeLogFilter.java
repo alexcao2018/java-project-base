@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.base.dubbo.init.ApplicationContextAware4Dubbo;
 import com.project.base.dubbo.init.DubboConfiguration;
+import com.project.base.trace.TraceIdGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +56,14 @@ public class ConsumeLogFilter implements Filter {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+
+        /* 生成traceId
+        ----------------------------------------------------------
+         */
+        String traceId = TraceIdGenerator.getTraceId();
+        if(StringUtils.isBlank(traceId)){
+            TraceIdGenerator.generateTraceId();
+        }
 
         DubboConfiguration dubboConfiguration = ApplicationContextAware4Dubbo.getContext().getBean(DubboConfiguration.class);
 
