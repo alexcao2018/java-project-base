@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.base.common.json.JsonTool;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -15,6 +17,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,6 +31,8 @@ public class HttpTool {
 
     private static CloseableHttpClient client = null;
 
+    private static final Logger logger = LoggerFactory.getLogger(HttpTool.class);
+
     static {
         MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         PoolingHttpClientConnectionManager cm = null;
@@ -36,24 +42,49 @@ public class HttpTool {
         client = HttpClients.custom().setConnectionManager(cm).build();
     }
 
-    public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz)
+    public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz
+            , boolean logResponse)
             throws IOException {
-        return post(url, params, clazz, 30000);
+        return post(url, params, clazz, 30000, logResponse);
     }
 
-    public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz, Integer timeout)
+    public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz, Integer timeout
+            , boolean logResponse)
             throws IOException {
+        T t;
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         HttpEntity httpEntity = getEntity(url, params, timeout);
+        stopWatch.stop();
         if (clazz == String.class) {
-            return (T) EntityUtils.toString(httpEntity);
-        }
-        return MAPPER.readValue(EntityUtils.toString(httpEntity), clazz);
+            t = (T) EntityUtils.toString(httpEntity);
+        } else
+            t = MAPPER.readValue(EntityUtils.toString(httpEntity), clazz);
+        StringBuilder sb = new StringBuilder(
+                String.format("Url:%s参数:%s响应时间:%d", url, JsonTool.serializeNoException(params), stopWatch.getTime())
+        );
+        if (logResponse)
+            sb.append("响应:").append(JsonTool.serializeNoException(t)).toString();
+        logger.info(sb.toString());
+        return t;
     }
 
-    public static final <T> T post(String url, Map<String, Object> params, TypeReference valueTypeRef, Integer timeout)
+    public static final <T> T post(String url, Map<String, Object> params, TypeReference valueTypeRef, Integer timeout
+            , boolean logResponse)
             throws IOException {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         HttpEntity httpEntity = getEntity(url, params, timeout);
-        return MAPPER.readValue(EntityUtils.toString(httpEntity), valueTypeRef);
+        stopWatch.stop();
+        T t = MAPPER.readValue(EntityUtils.toString(httpEntity), valueTypeRef);
+
+        StringBuilder sb = new StringBuilder(
+                String.format("Url:%s参数:%s响应时间:%d", url, JsonTool.serializeNoException(params), stopWatch.getTime())
+        );
+        if (logResponse)
+            sb.append("响应:").append(JsonTool.serializeNoException(t)).toString();
+        logger.info(sb.toString());
+        return t;
     }
 
     private static HttpEntity getEntity(String url, Map<String, Object> params, Integer timeout) throws IOException {
@@ -86,17 +117,18 @@ public class HttpTool {
         return stringEntity;
     }
 
-    public static final <T> T get(String url, Map<String, String> params, Class<T> clazz)
+    public static final <T> T get(String url, Map<String, String> params, Class<T> clazz
+            , boolean logResponse)
             throws URISyntaxException, IOException {
         URIBuilder builder = new URIBuilder(url);
         for (Map.Entry<String, String> entry : params.entrySet()) {
             builder.setParameter(entry.getKey(), entry.getValue());
         }
         URI uri2 = builder.build();
-        return get(uri2.toString(), clazz, 30000);
+        return get(uri2.toString(), clazz, 30000, logResponse);
     }
 
-    public static final <T> T get(String uri, Class<T> clazz, Integer timeout)
+    public static final <T> T get(String uri, Class<T> clazz, Integer timeout, boolean logResponse)
             throws IOException {
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(timeout).setConnectionRequestTimeout(timeout)
@@ -105,12 +137,23 @@ public class HttpTool {
         HttpGet httpGet = new HttpGet(uri);
         httpGet.setConfig(config);
         try {
+            T t;
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
             response = client.execute(httpGet);
+            stopWatch.stop();
             HttpEntity entity = response.getEntity();
-            if (clazz == String.class) {
-                return (T) EntityUtils.toString(entity);
-            }
-            return MAPPER.readValue(EntityUtils.toString(entity), clazz);
+            if (clazz == String.class)
+                t = (T) EntityUtils.toString(entity);
+            else
+                t = MAPPER.readValue(EntityUtils.toString(entity), clazz);
+            StringBuilder sb = new StringBuilder(
+                    String.format("Url:%s响应时间:%d", uri, stopWatch.getTime())
+            );
+            if (logResponse)
+                sb.append("响应:").append(JsonTool.serializeNoException(t)).toString();
+            logger.info(sb.toString());
+            return t;
         } catch (IOException e) {
             if (response != null)
                 response.close();
@@ -120,13 +163,14 @@ public class HttpTool {
 
     }
 
-    public static final <T> T get(String url, Map<String, String> params, Class<T> clazz, Integer timeout)
+    public static final <T> T get(String url, Map<String, String> params, Class<T> clazz, Integer timeout,
+                                  boolean logResponse)
             throws URISyntaxException, IOException {
         URIBuilder builder = new URIBuilder(url);
         for (Map.Entry<String, String> entry : params.entrySet()) {
             builder.setParameter(entry.getKey(), entry.getValue());
         }
         URI uri2 = builder.build();
-        return get(uri2.toString(), clazz, timeout);
+        return get(uri2.toString(), clazz, timeout, logResponse);
     }
 }
