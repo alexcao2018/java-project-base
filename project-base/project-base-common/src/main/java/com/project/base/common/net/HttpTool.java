@@ -42,10 +42,9 @@ public class HttpTool {
         client = HttpClients.custom().setConnectionManager(cm).build();
     }
 
-    public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz
-            , boolean logResponse)
+    public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz)
             throws IOException {
-        return post(url, params, clazz, 30000, logResponse);
+        return post(url, params, clazz, 30000, false);
     }
 
     public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz, Integer timeout
