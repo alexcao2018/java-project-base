@@ -149,8 +149,14 @@ public class ApolloMojo extends AbstractMojo {
         return sb.toString();
     }
 
-    private static String toString(String key, Map<String, Object> map) {
+    private static String toString(String key, Object value) {
         StringBuilder sb = new StringBuilder();
+        if(!(value instanceof Map)){
+            sb.append(String.format("%s=%s%n", key, value.toString()));
+            return sb.toString();
+        }
+
+        Map<String,Object> map = (Map) value;
         for (String mapKey : map.keySet()) {
             if (map.get(mapKey) instanceof Map) {
                 sb.append(toString(String.format("%s.%s", key, mapKey), (Map<String, Object>) map.get(mapKey)));
