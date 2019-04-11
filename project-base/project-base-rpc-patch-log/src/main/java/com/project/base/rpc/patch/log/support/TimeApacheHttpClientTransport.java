@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.text.MessageFormat;
 
 public class TimeApacheHttpClientTransport extends ApacheHttpClientTransport {
 
@@ -33,16 +34,28 @@ public class TimeApacheHttpClientTransport extends ApacheHttpClientTransport {
 
     @Override
     public void flush() throws TransportException {
-        URL url=getUrl();
-        String uri=url.getHost()+"://"+url.getPort()+url.getPath();
-        logger.info("send request:{}",uri);
-        byte[] data=requestBuffer.toByteArray();
-        if(data!=null&&data.length!=0){
-            logger.info("request params:{}", new String(data));
+        URL url = getUrl();
+        String uri = url.getHost() + "://" + url.getPort() + url.getPath();
+        String parameter = "";
+        byte[] data = requestBuffer.toByteArray();
+        if (data != null && data.length != 0) {
+            parameter = new String(data);
         }
-        long t=System.currentTimeMillis();
-        super.flush();
-        logger.info("request take:{}",(System.currentTimeMillis()-t));
 
+        String httpRequestBegin = MessageFormat.format("rpc 请求开始,url:【{0}】,参数:{1}"
+                , uri
+                , parameter);
+
+        logger.info(httpRequestBegin);
+
+        long t = System.currentTimeMillis();
+        super.flush();
+
+        String httpRequestEnd = MessageFormat.format("rpc 请求结束,执行时间:{2},url:【{0}】,参数：{1}"
+                , uri
+                , parameter
+                , (System.currentTimeMillis() - t));
+
+        logger.info(httpRequestEnd);
     }
 }
