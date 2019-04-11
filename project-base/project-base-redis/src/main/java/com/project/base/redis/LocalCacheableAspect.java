@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 @Aspect
@@ -29,7 +30,10 @@ public class LocalCacheableAspect {
     @Autowired
     private CacheHelper cacheHelper;
 
-    private Map<String, LoadingCache<String, Object>> loadingCacheMap = new HashMap();
+    private Map<String, LoadingCache<String, Object>> loadingCacheMap = new HashMap<>();
+
+    private Map<String, Caffeine<Object, Object>> supportMap = new ConcurrentHashMap<>();
+
     private Logger logger = LoggerFactory.getLogger(LocalCacheableAspect.class);
 
     @Pointcut("@annotation(com.project.base.redis.annotation.LocalCacheable)")
@@ -57,12 +61,14 @@ public class LocalCacheableAspect {
             }
 
         } else {
-            loadingCache = Caffeine.newBuilder()
+            Caffeine<Object, Object> supply = Caffeine.newBuilder()
                     .expireAfterWrite(redisCacheable.localCacheTime(), TimeUnit.SECONDS)
                     .maximumSize(10000)
-                    .refreshAfterWrite(redisCacheable.localCacheRefreshTime(), TimeUnit.SECONDS)
-                    .build((x) -> method.invoke(joinPoint.getTarget(), joinPoint.getArgs()));
-            loadingCacheMap.put(cacheKey, loadingCache);
+                    .refreshAfterWrite(redisCacheable.localCacheRefreshTime(), TimeUnit.SECONDS);
+            if (supportMap.putIfAbsent(cacheKey, supply) == null) {
+                loadingCache = supply.build((x) -> method.invoke(joinPoint.getTarget(), joinPoint.getArgs()));
+                loadingCacheMap.put(cacheKey, loadingCache);
+            }
         }
         try {
 
@@ -70,7 +76,9 @@ public class LocalCacheableAspect {
         } catch (Throwable throwable) {
             logger.error(throwable.getMessage(), throwable);
         }
-        loadingCache.put(cacheKey, result);
+        if (loadingCache != null) {
+            loadingCache.put(cacheKey, result);
+        }
         return result;
     }
 
