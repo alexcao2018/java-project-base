@@ -71,7 +71,6 @@ public class LocalCacheableAspect {
             }
         }
         try {
-
             result = joinPoint.proceed();
         } catch (Throwable throwable) {
             logger.error(throwable.getMessage(), throwable);
@@ -89,7 +88,10 @@ public class LocalCacheableAspect {
         String cacheKey = getCacheKey(redisCacheable, joinPoint, method);
         if (StringUtils.isEmpty(cacheKey))
             return;
-        loadingCacheMap.remove(method.getName());
+        if (loadingCacheMap.containsKey(cacheKey)) {
+            LoadingCache<String, Object> map = loadingCacheMap.get(cacheKey);
+            map.invalidateAll();
+        }
     }
 
     private String getCacheKey(LocalCacheable localCacheable, JoinPoint joinPoint, Method method) {
