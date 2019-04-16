@@ -14,6 +14,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import static com.sun.org.apache.bcel.internal.classfile.Utility.toHexString;
+
 public class HashTool {
 
     private static final Logger logger = LoggerFactory.getLogger(HashTool.class);
@@ -77,5 +79,17 @@ public class HashTool {
             return null;
         }
     }
+
+    public static String md5ForNet(String str) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(str.getBytes("UTF-8"));
+            return toHexString(md.digest()).replace(" ", "");
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
 
 }
