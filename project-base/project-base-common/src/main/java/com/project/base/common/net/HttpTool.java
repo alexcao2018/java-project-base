@@ -44,16 +44,16 @@ public class HttpTool {
 
     public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz)
             throws IOException {
-        return post(url, params, clazz, 30000, false);
+        return post(url, params, clazz, 30000, "application/json;charset=UTF-8", false);
     }
 
     public static final <T> T post(String url, Map<String, Object> params, Class<T> clazz, Integer timeout
-            , boolean logResponse)
+            , String contentType, boolean logResponse)
             throws IOException {
         T t;
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        HttpEntity httpEntity = getEntity(url, params, timeout);
+        HttpEntity httpEntity = getEntity(url, params, timeout, contentType);
         stopWatch.stop();
         if (clazz == String.class) {
             t = (T) EntityUtils.toString(httpEntity);
@@ -73,7 +73,7 @@ public class HttpTool {
             throws IOException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        HttpEntity httpEntity = getEntity(url, params, timeout);
+        HttpEntity httpEntity = getEntity(url, params, timeout, "application/json;charset=UTF-8");
         stopWatch.stop();
         T t = MAPPER.readValue(EntityUtils.toString(httpEntity), valueTypeRef);
 
@@ -86,14 +86,15 @@ public class HttpTool {
         return t;
     }
 
-    private static HttpEntity getEntity(String url, Map<String, Object> params, Integer timeout) throws IOException {
+    private static HttpEntity getEntity(String url, Map<String, Object> params, Integer timeout,
+                                        String contentType) throws IOException {
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(timeout).setConnectionRequestTimeout(timeout)
                 .setSocketTimeout(timeout).build();
         CloseableHttpResponse response = null;
         HttpPost httpPost = new HttpPost(url);
         httpPost.setConfig(config);
-        httpPost.addHeader("Content-Type", "application/json;charset=UTF-8");
+        httpPost.addHeader("Content-Type", contentType);
         httpPost.setEntity(generatePostEntity(params));
         try {
             response = client.execute(httpPost);
