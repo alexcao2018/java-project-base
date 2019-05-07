@@ -1,6 +1,5 @@
 package com.project.base.web.filter;
 
-import com.alibaba.ttl.TransmittableThreadLocal;
 import com.project.base.common.enums.EnumHttpRequestKey;
 import com.project.base.model.net.HttpRequestInfo;
 import com.project.base.trace.TraceIdGenerator;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -46,7 +44,8 @@ public class LogFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if ("/".equals(request.getRequestURI())) {
+        if ("/".equals(request.getRequestURI()) || request.getRequestURI().equals("/wechat/")
+                || request.getRequestURI().equals("/heathcheck/")) {
             filterChain.doFilter(request, response);
             return;
         }

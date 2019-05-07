@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 /*
 
@@ -61,7 +60,7 @@ public class ConsumeLogFilter implements Filter {
         ----------------------------------------------------------
          */
         String traceId = TraceIdGenerator.getTraceId();
-        if(StringUtils.isBlank(traceId)){
+        if (StringUtils.isBlank(traceId)) {
             TraceIdGenerator.generateTraceId();
         }
 
@@ -86,12 +85,12 @@ public class ConsumeLogFilter implements Filter {
         if (dubboConfiguration.isRecordInvokeResult() && isNotExclude) {
             try {
                 String jsonResult = mapper.writeValueAsString(result.getValue());
-                logger.info("dubbo 请求调用，时长:{},{}:{},参数：{},结果：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments(), jsonResult);
+                logger.warn("dubbo 请求调用，时长:{},{}:{},参数：{},结果：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments(), jsonResult);
             } catch (JsonProcessingException e) {
                 logger.error(e.getMessage(), e);
             }
         } else {
-            logger.info("dubbo 请求调用，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
+            logger.warn("dubbo 请求调用，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
         }
 
         return result;
