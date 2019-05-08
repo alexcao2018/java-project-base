@@ -117,9 +117,17 @@ public class Validation {
         }
 
         SmsCode smsCodeExpressionAnnotation = field.getAnnotation(SmsCode.class);
-        if (mobileEzExpressionAnnotation != null) {
+        if (smsCodeExpressionAnnotation != null) {
             if (fieldValue == null || !fieldValue.toString().matches(smsCodeExpressionAnnotation.pattern())) {
                 errorCollection.add(smsCodeExpressionAnnotation.value());
+            }
+        }
+
+
+        UserName userNameExpressionAnnotation = field.getAnnotation(UserName.class);
+        if (userNameExpressionAnnotation != null) {
+            if (fieldValue == null || !fieldValue.toString().matches(userNameExpressionAnnotation.pattern())) {
+                errorCollection.add(userNameExpressionAnnotation.value());
             }
         }
 

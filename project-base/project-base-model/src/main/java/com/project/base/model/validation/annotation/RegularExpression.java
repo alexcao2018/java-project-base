@@ -17,6 +17,7 @@ public @interface RegularExpression {
     public static final String MobileEz = "^[\\d]{11}$";
     String PassWord = "^.{6,16}$";
     String SmsCode = "^[\\d]{6}$";
+    String UserName = "^[a-zA-Z0-9_-]{6,50}$";
 
     String pattern() default "";
 
