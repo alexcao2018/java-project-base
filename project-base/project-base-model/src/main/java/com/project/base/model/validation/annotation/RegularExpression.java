@@ -15,6 +15,8 @@ public @interface RegularExpression {
     public static final String NaturalNumber = "^[0-9]*$";
     public static final String Blank = "/^$|\\s+/";
     public static final String MobileEz = "^[\\d]{11}$";
+    String PassWord = "^.{6,16}$";
+    String SmsCode = "^[\\d]{6}$";
 
     String pattern() default "";
 

@@ -101,6 +101,28 @@ public class Validation {
             }
         }
 
+
+        MobileEz mobileEzExpressionAnnotation = field.getAnnotation(MobileEz.class);
+        if (mobileEzExpressionAnnotation != null) {
+            if (fieldValue == null || !fieldValue.toString().matches(mobileEzExpressionAnnotation.pattern())) {
+                errorCollection.add(mobileEzExpressionAnnotation.value());
+            }
+        }
+
+        PassWord passWordExpressionAnnotation = field.getAnnotation(PassWord.class);
+        if (passWordExpressionAnnotation != null) {
+            if (fieldValue == null || !fieldValue.toString().matches(passWordExpressionAnnotation.pattern())) {
+                errorCollection.add(passWordExpressionAnnotation.value());
+            }
+        }
+
+        SmsCode smsCodeExpressionAnnotation = field.getAnnotation(SmsCode.class);
+        if (mobileEzExpressionAnnotation != null) {
+            if (fieldValue == null || !fieldValue.toString().matches(smsCodeExpressionAnnotation.pattern())) {
+                errorCollection.add(smsCodeExpressionAnnotation.value());
+            }
+        }
+
         if (fieldValue == null)
             return errorCollection;
 
@@ -146,12 +168,6 @@ public class Validation {
             }
         }
 
-        MobileEz mobileEzExpressionAnnotation = field.getAnnotation(MobileEz.class);
-        if (mobileEzExpressionAnnotation != null) {
-            if (fieldValue == null || !fieldValue.toString().matches(mobileEzExpressionAnnotation.pattern())) {
-                errorCollection.add(mobileEzExpressionAnnotation.value());
-            }
-        }
         return errorCollection;
 
     }
