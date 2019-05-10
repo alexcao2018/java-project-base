@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.base.common.json.JsonTool;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -16,13 +18,17 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class HttpTool {
@@ -95,7 +101,10 @@ public class HttpTool {
         HttpPost httpPost = new HttpPost(url);
         httpPost.setConfig(config);
         httpPost.addHeader("Content-Type", contentType);
-        httpPost.setEntity(generatePostEntity(params));
+        if (contentType.toLowerCase().contains("urlencoded")) {
+            httpPost.setEntity(generateUrlEncodePostEntity(params));
+        } else
+            httpPost.setEntity(generateJsonPostEntity(params));
         try {
             response = client.execute(httpPost);
             return response.getEntity();
@@ -109,12 +118,26 @@ public class HttpTool {
     }
 
 
-    private static StringEntity generatePostEntity(Map<String, Object> params) throws JsonProcessingException {
+    private static StringEntity generateJsonPostEntity(Map<String, Object> params) throws JsonProcessingException {
 
         String json = MAPPER.writeValueAsString(params);
         StringEntity stringEntity = new StringEntity(json, "UTF-8");
         stringEntity.setContentEncoding("UTF-8");
         return stringEntity;
+    }
+
+    private static StringEntity generateUrlEncodePostEntity(Map<String, Object> params) throws JsonProcessingException,
+            UnsupportedEncodingException {
+
+        List<NameValuePair> list = new ArrayList<>();
+        params.forEach((k, v) -> {
+            NameValuePair nameValuePair = new BasicNameValuePair(k, v.toString());
+            list.add(nameValuePair);
+        });
+        StringEntity stringEntity = new UrlEncodedFormEntity(list, "UTF-8");
+        stringEntity.setContentEncoding("UTF-8");
+        return stringEntity;
+
     }
 
     public static final <T> T get(String url, Map<String, String> params, Class<T> clazz
