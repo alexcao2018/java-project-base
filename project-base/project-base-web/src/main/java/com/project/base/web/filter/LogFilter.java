@@ -45,7 +45,7 @@ public class LogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         if ("/".equals(request.getRequestURI()) || request.getRequestURI().equals("/wechat/")
-                || request.getRequestURI().equals("/heathcheck/")) {
+                || request.getRequestURI().equals("/healthcheck/")) {
             filterChain.doFilter(request, response);
             return;
         }
