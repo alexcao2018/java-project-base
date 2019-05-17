@@ -73,7 +73,7 @@ public class ApolloMojo extends AbstractMojo {
     @Parameter(property = "sourceDirectory", defaultValue = "${project.build.sourceDirectory}", readonly = true, required = true)
     private String sourceDirectory;
 
-    @Parameter(property = "enableDev",  required = false)
+    @Parameter(property = "enableDev", required = false)
     private boolean enableDev;
 
     private Map<String, String> profileMap = new HashMap<>();
@@ -151,17 +151,17 @@ public class ApolloMojo extends AbstractMojo {
 
     private static String toString(String key, Object value) {
         StringBuilder sb = new StringBuilder();
-        if(!(value instanceof Map)){
+        if (!(value instanceof Map)) {
             sb.append(String.format("%s=%s%n", key, value.toString()));
             return sb.toString();
         }
 
-        Map<String,Object> map = (Map) value;
+        Map<String, Object> map = (Map) value;
         for (String mapKey : map.keySet()) {
             if (map.get(mapKey) instanceof Map) {
                 sb.append(toString(String.format("%s.%s", key, mapKey), (Map<String, Object>) map.get(mapKey)));
             } else {
-                sb.append(String.format("%s.%s=%s%n", key, mapKey, map.get(mapKey).toString()));
+                sb.append(String.format("%s.%s=%s%n", key, mapKey, (map.get(mapKey) == null ? "" : map.get(mapKey).toString())));
             }
         }
         return sb.toString();
