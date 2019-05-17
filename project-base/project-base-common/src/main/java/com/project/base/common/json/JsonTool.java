@@ -6,13 +6,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.TimeZone;
 
 public class JsonTool {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
     static {
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).
+                setTimeZone(TimeZone.getTimeZone("GMT+8"));
     }
 
     /**
