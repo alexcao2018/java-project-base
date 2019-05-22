@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.extension.Activate;
 import com.alibaba.dubbo.rpc.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.base.common.json.JsonTool;
 import com.project.base.dubbo.init.ApplicationContextAware4Dubbo;
 import com.project.base.dubbo.init.DubboConfiguration;
 import com.project.base.trace.TraceIdGenerator;
@@ -69,8 +70,9 @@ public class ConsumeLogFilter implements Filter {
         StopWatch stopWatch = StopWatch.createStarted();
         Result result = invoker.invoke(invocation);
 
+
         if (result.hasException()) {
-            logger.error(MessageFormat.format("dubbo 请求异常:{0},{1}:{2},参数：{3}", result.getException().getMessage(), invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments()), result.getException());
+            logger.error(MessageFormat.format("dubbo 请求异常:{0},{1}:{2},参数：{3}", result.getException().getMessage(), invoker.getInterface().getName(), invocation.getMethodName(), jsonParameter(invocation.getArguments())), result.getException());
             return result;
         }
 
@@ -81,18 +83,22 @@ public class ConsumeLogFilter implements Filter {
         if (dubboConfiguration.getRecordInvokeExcludeMethod() != null) {
             isNotExclude = dubboConfiguration.getRecordInvokeExcludeMethod().stream().filter(x -> x.equalsIgnoreCase(invocation.getMethodName())).count() == 0;
         }
-
-        if (dubboConfiguration.isRecordInvokeResult() && isNotExclude) {
-            try {
-                String jsonResult = mapper.writeValueAsString(result.getValue());
-                logger.warn("dubbo 请求调用，时长:{},{}:{},参数：{},结果：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments(), jsonResult);
-            } catch (JsonProcessingException e) {
-                logger.error(e.getMessage(), e);
-            }
+        if ((dubboConfiguration.isRecordInvokeResult() && isNotExclude) || logger.isDebugEnabled()) {
+            String jsonResult = jsonParameter(result.getValue());
+            logger.warn("dubbo 请求调用，时长:{},{}:{},参数：{},结果：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), jsonParameter(invocation.getArguments()), jsonResult);
         } else {
-            logger.warn("dubbo 请求调用，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), invocation.getArguments());
+            logger.warn("dubbo 请求调用，时长:{},{}:{},参数：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), jsonParameter(invocation.getArguments()));
         }
-
         return result;
     }
+
+    private String jsonParameter(Object value) {
+        try {
+            return mapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return StringUtils.EMPTY;
+    }
+
 }

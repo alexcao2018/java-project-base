@@ -46,7 +46,7 @@ public class TimeApacheHttpClientTransport extends ApacheHttpClientTransport {
                 , uri
                 , parameter);
 
-        logger.info(httpRequestBegin);
+        logger.warn(httpRequestBegin);
 
         long t = System.currentTimeMillis();
         super.flush();
@@ -56,6 +56,6 @@ public class TimeApacheHttpClientTransport extends ApacheHttpClientTransport {
                 , parameter
                 , (System.currentTimeMillis() - t));
 
-        logger.info(httpRequestEnd);
+        logger.warn(httpRequestEnd);
     }
 }
