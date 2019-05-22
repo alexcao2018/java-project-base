@@ -1,9 +1,16 @@
 package com.project.base.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class BaseSearch {
+
+    @ApiModelProperty("必须，页码（从0开始）")
     private Integer pageIndex;
+    @ApiModelProperty("必须，分页条数")
     private Integer pageSize;
+    @ApiModelProperty("非必须，排序字段名")
     private String orderName;
+    @ApiModelProperty("非必须，排序方向")
     private String orderDirection;
 
     public Integer getPageIndex() {
