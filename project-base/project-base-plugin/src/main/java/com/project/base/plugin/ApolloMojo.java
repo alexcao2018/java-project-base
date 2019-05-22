@@ -164,7 +164,7 @@ public class ApolloMojo extends AbstractMojo {
             } else if (map.get(mapKey) instanceof List) {
                 List list = (List) map.get(mapKey);
                 for (int i = 0; i < list.size(); i++) {
-                    sb.append(toString(String.format("%s.%s[%d]", key, mapKey, i), (Map<String, Object>) list.get(i)));
+                    sb.append(toString(String.format("%s.%s[%d]", key, mapKey, i), list.get(i)));
                 }
             } else {
                 sb.append(String.format("%s.%s=%s%n", key, mapKey, (map.get(mapKey) == null ? "" : map.get(mapKey).toString())));
