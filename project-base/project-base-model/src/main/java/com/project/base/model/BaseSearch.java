@@ -5,9 +5,9 @@ import io.swagger.annotations.ApiModelProperty;
 public class BaseSearch {
 
     @ApiModelProperty("必须，页码（从0开始）")
-    private Integer pageIndex;
+    private Integer pageIndex = 0;
     @ApiModelProperty("必须，分页条数")
-    private Integer pageSize;
+    private Integer pageSize = 20;
     @ApiModelProperty("非必须，排序字段名")
     private String orderName;
     @ApiModelProperty("非必须，排序方向")
