@@ -81,10 +81,10 @@ public class CriteriaInterceptor implements Interceptor {
 
                             Field parameterMappingsField = boundSql.getClass().getDeclaredField("parameterMappings");
                             setFinal(boundSql, parameterMappingsField, newParameterMappingCollection);
-                            byCriteriaConcurrentHashMap.put(criteriaSql,newParameterMappingCollection);
+                            byCriteriaConcurrentHashMap.put(criteriaSql, newParameterMappingCollection);
                         }
                     }
-                }else{
+                } else {
                     List<ParameterMapping> parameterMappingCollection = byCriteriaConcurrentHashMap.get(criteriaSql);
                     Field parameterMappingsField = boundSql.getClass().getDeclaredField("parameterMappings");
                     setFinal(boundSql, parameterMappingsField, parameterMappingCollection);
@@ -95,6 +95,8 @@ public class CriteriaInterceptor implements Interceptor {
 
             if (pageInfo != null) {
                 String countSql = " select count(*) from ( " + sql + ") __t__ " + criteria.replaceParameter2PlaceHolder();
+                if (pageInfo.getPageNum() < 0)
+                    throw new Exception("page index 不能小于0");
                 pageInfo.setTotalCount(selectCount(invocation, metaObject, countSql));
             }
         }
@@ -103,6 +105,8 @@ public class CriteriaInterceptor implements Interceptor {
             BoundSql boundSql = statementHandler.getBoundSql();
             Map<String, Object> params = (Map<String, Object>) boundSql.getParameterObject();
             PageInfo pageInfo = (PageInfo) params.get("pageInfo");
+            if (pageInfo.getPageNum() < 0)
+                throw new Exception("page index 不能小于0");
             String sql = boundSql.getSql();
             String countSql = sql.replaceFirst("\\*", "count(*)");
             countSql = countSql.substring(0, countSql.indexOf("limit"));
