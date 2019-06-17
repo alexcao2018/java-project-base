@@ -119,9 +119,9 @@ public class Criteria implements Serializable {
         }
 
         if (maxResult != null && firstResult != null) {
-            sql.append(MessageFormat.format(" limit {0},{1} ", firstResult, maxResult));
+            sql.append(MessageFormat.format(" limit {0},{1} ", String.valueOf(firstResult), String.valueOf(maxResult)));
         } else if (maxResult != null && firstResult == null) {
-            sql.append(MessageFormat.format(" limit {0} ", maxResult));
+            sql.append(MessageFormat.format(" limit {0} ", String.valueOf(maxResult)));
         }
 
         return sql.toString();
