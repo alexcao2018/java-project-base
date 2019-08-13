@@ -76,6 +76,7 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
                 RabbitMQConnectionFactoryWrapper rabbitMQConnectionFactoryWrapper = new RabbitMQConnectionFactoryWrapper();
                 rabbitMQConnectionFactoryWrapper.setConnectionFactory(factory);
                 rabbitMQConnectionFactoryWrapper.setFlag(rabbitMQHost.getFlag());
+                rabbitMQConnectionFactoryWrapper.setRabbitMQHostProperty(rabbitMQHost);
 
                 rabbitMQConnectionFactoryWrapperCollection.add(rabbitMQConnectionFactoryWrapper);
             }
@@ -102,7 +103,10 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
             SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory = defaultListableBeanFactory.getBean(ContainerFactoryBeanPrefix + rabbitMQConnectionFactoryWrapper.getFlag(), SimpleRabbitListenerContainerFactory.class);
 
             simpleRabbitListenerContainerFactory.setConnectionFactory(rabbitMQConnectionFactoryWrapper.getConnectionFactory());
-            simpleRabbitListenerContainerFactory.setMessageConverter(new Jackson2JsonMessageConverter());
+
+            if (!rabbitMQConnectionFactoryWrapper.getRabbitMQHostProperty().getDisableListenerConverter()) {
+                simpleRabbitListenerContainerFactory.setMessageConverter(new Jackson2JsonMessageConverter());
+            }
 
             RabbitListenerContainerFactoryWrapper rabbitListenerContainerFactoryWrapper = new RabbitListenerContainerFactoryWrapper();
             rabbitListenerContainerFactoryWrapper.setRabbitListenerContainerFactory(simpleRabbitListenerContainerFactory);
@@ -185,6 +189,8 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
 
     @Override
     public void configureRabbitListeners(RabbitListenerEndpointRegistrar registrar) {
-        registrar.setMessageHandlerMethodFactory(defaultMessageHandlerMethodFactory());
+        if (!rabbitMQProperties.getDisableListenerConverter()) {
+            registrar.setMessageHandlerMethodFactory(defaultMessageHandlerMethodFactory());
+        }
     }
 }

@@ -1,23 +1,7 @@
 package com.project.base.rabbitmq;
 
-import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -28,6 +12,7 @@ public class RabbitMQProperties {
     private String username;
     private String password;
     private String virtualHost;
+    private boolean disableListenerConverter;
     private List<RabbitMQHost> hosts;
 
     public RabbitMQProperties() {
@@ -41,6 +26,7 @@ public class RabbitMQProperties {
         private String username;
         private String password;
         private String virtualHost = "/";
+        private boolean disableListenerConverter;
 
         public String getHost() {
             return host;
@@ -88,6 +74,14 @@ public class RabbitMQProperties {
 
         public void setUsername(String username) {
             this.username = username;
+        }
+
+        public boolean getDisableListenerConverter() {
+            return disableListenerConverter;
+        }
+
+        public void setDisableListenerConverter(boolean disableListenerConverter) {
+            this.disableListenerConverter = disableListenerConverter;
         }
     }
 
@@ -137,5 +131,13 @@ public class RabbitMQProperties {
 
     public void setHosts(List<RabbitMQHost> hosts) {
         this.hosts = hosts;
+    }
+
+    public boolean getDisableListenerConverter() {
+        return disableListenerConverter;
+    }
+
+    public void setDisableListenerConverter(boolean disableListenerConverter) {
+        this.disableListenerConverter = disableListenerConverter;
     }
 }
