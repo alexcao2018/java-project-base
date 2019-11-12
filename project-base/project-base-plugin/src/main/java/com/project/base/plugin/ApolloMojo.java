@@ -130,7 +130,9 @@ public class ApolloMojo extends AbstractMojo {
             InputStream resourceAsStream = ApolloMojo.class.getClassLoader().getResourceAsStream("application.yml");
             try {
                 String apolloYaml = IOUtils.toString(resourceAsStream, "UTF-8");
-                apolloYaml = apolloYaml.replace("${id}", project.getParent().getArtifact().getArtifactId());
+                String artifactId = project.getParent().getArtifact().getArtifactId();
+                String apolloId = artifactId.substring(0, artifactId.length() > 32 ? 32 : artifactId.length() - 1);
+                apolloYaml = apolloYaml.replace("${id}", apolloId);
                 Path file = Paths.get(outputDirectory.getAbsolutePath() + File.separator + applicationYmlName);
                 byte[] bytes = apolloYaml.getBytes(Charset.forName("UTF-8"));
                 Files.write(file, bytes);
