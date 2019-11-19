@@ -3,6 +3,7 @@ package com.project.base.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.base.common.enums.EnumHttpRequestKey;
 import com.project.base.model.CommonResponse;
+import com.project.base.model.exception.BizException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
 
     private Logger logger = LoggerFactory.getLogger(GlobalExceptionResolver.class);
     private ObjectMapper objectMapper = new ObjectMapper();
-    private static ModelAndView modelAndView =  new ModelAndView();
+    private static ModelAndView modelAndView = new ModelAndView();
 
     protected ModelAndView doResolveHandlerMethodException(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HandlerMethod handlerMethod, Exception ex) {
 
@@ -59,15 +60,26 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
                 , StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
 
         logger.error(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
+
+        /* 返回response
+        --------------------------------------
+         */
         CommonResponse response = new CommonResponse();
-        response.setError(999);
+        if (ex.getClass() == BizException.class) {
+            BizException bizException = (BizException) ex;
+            response.setError(tryParse(bizException.getCode(), 999));
+            response.setMessage(bizException.getMessage());
+        } else {
+            response.setError(999);
+            response.setMessage("接口异常");
+        }
+
         StringBuilder message = new StringBuilder();
         message.append(ex.getMessage());
         for (StackTraceElement e : ex.getStackTrace()) {
             message.append(System.getProperty("line.separator"));
             message.append(e);
         }
-        response.setMessage("接口异常");
         response.setException(message.toString());
 
         httpServletResponse.setContentType("application/json");
@@ -81,5 +93,13 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
 
         return modelAndView;
 
+    }
+
+    public int tryParse(String value, int defaultVal) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return defaultVal;
+        }
     }
 }

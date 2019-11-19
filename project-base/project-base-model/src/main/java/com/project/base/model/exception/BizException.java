@@ -2,7 +2,8 @@ package com.project.base.model.exception;
 
 public class BizException extends RuntimeException {
 
-    private String code;
+    private static final long serialVersionUID = -8279208109267434451L;
+    private String code = "999";
 
     public BizException(String message) {
         super(message);
