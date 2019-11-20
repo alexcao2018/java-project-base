@@ -1,8 +1,11 @@
 package com.project.base.redis;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.util.Pool;
@@ -15,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class RedisClientImpl implements RedisClient {
+
+    private Logger logger = LoggerFactory.getLogger(RedisClientImpl.class);
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -102,24 +107,59 @@ public class RedisClientImpl implements RedisClient {
      * @return
      */
     @Override
+    @Deprecated
     public boolean setIfAbsent(String key, Object value) {
         return setIfAbsent(key, value, null);
     }
 
     /**
      * SETNX 命令
+     *
      * @param key
      * @param value
      * @param timeout
      * @return
      */
     @Override
+    @Deprecated
     public boolean setIfAbsent(String key, Object value, Integer timeout) {
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
         Boolean result = valueOperations.setIfAbsent(key, value);
         if (timeout != null && result)
             expire(key, timeout);
         return result;
+    }
+
+    @Override
+    public boolean setIfAbsentAtomic(String key, Object value) {
+        return setIfAbsentAtomic(key, value, null);
+    }
+
+    /**
+     *
+     * @param key
+     * @param value
+     * @param timeout 秒为单位
+     * @return
+     */
+    @Override
+    public boolean setIfAbsentAtomic(String key, Object value, Integer timeout) {
+        try {
+            RedisSerializer<Object> valueSerializer = (RedisSerializer<Object>) redisTemplate.getValueSerializer();
+            byte[] valueByte = valueSerializer.serialize(value);
+            Jedis jedis = jedisPool.getResource();
+            String response;
+            if (timeout != null) {
+                response = jedis.set(key.getBytes(), valueByte, "NX".getBytes(), "EX".getBytes(), timeout);
+            } else {
+                response = jedis.set(key.getBytes(), valueByte, "NX".getBytes());
+            }
+            return response != null && response.equalsIgnoreCase("OK");
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+
+        return false;
     }
 
 

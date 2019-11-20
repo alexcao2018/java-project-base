@@ -22,9 +22,28 @@ public interface RedisClient {
      */
     boolean set(String key, Object value);
 
+    /**
+     * @see setIfAbsentAtomic
+     * @param key
+     * @param value
+     * @return
+     */
+    @Deprecated
     boolean setIfAbsent(String key, Object value);
 
+    /**
+     * @see setIfAbsentAtomic
+     * @param key
+     * @param value
+     * @param timeout
+     * @return
+     */
+    @Deprecated
     boolean setIfAbsent(String key, Object value, Integer timeout);
+
+    boolean setIfAbsentAtomic(String key, Object value);
+
+    boolean setIfAbsentAtomic(String key, Object value, Integer timeout);
 
     boolean set(String key, Object value, int timeout);
 

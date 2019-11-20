@@ -1,5 +1,10 @@
 package com.project.base.redis;
 
+/**
+ * 此redis锁,在加锁的时候,设置key 与 expired 分开,非原子操作，不安全.
+ * @see RedisLock
+ */
+@Deprecated
 public class RedisLockTool {
 
     private RedisClient redisClient;
