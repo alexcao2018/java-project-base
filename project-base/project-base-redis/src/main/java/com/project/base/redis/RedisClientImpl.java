@@ -136,7 +136,6 @@ public class RedisClientImpl implements RedisClient {
     }
 
     /**
-     *
      * @param key
      * @param value
      * @param timeout 秒为单位
@@ -144,10 +143,11 @@ public class RedisClientImpl implements RedisClient {
      */
     @Override
     public boolean setIfAbsentAtomic(String key, Object value, Integer timeout) {
+        Jedis jedis = null;
         try {
             RedisSerializer<Object> valueSerializer = (RedisSerializer<Object>) redisTemplate.getValueSerializer();
             byte[] valueByte = valueSerializer.serialize(value);
-            Jedis jedis = jedisPool.getResource();
+            jedis = jedisPool.getResource();
             String response;
             if (timeout != null) {
                 response = jedis.set(key.getBytes(), valueByte, "NX".getBytes(), "EX".getBytes(), timeout);
@@ -157,7 +157,11 @@ public class RedisClientImpl implements RedisClient {
             return response != null && response.equalsIgnoreCase("OK");
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
+        } finally {
+            if (jedis != null)
+                jedis.close();
         }
+
 
         return false;
     }
