@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -59,7 +60,7 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
                 , httpRequestUrl
                 , StringUtils.isBlank(httpPostBody) ? StringUtils.EMPTY : httpPostBody);
 
-        logger.error(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
+
 
         /* 返回response
         --------------------------------------
@@ -69,9 +70,29 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
             BizException bizException = (BizException) ex;
             response.setError(tryParse(bizException.getCode(), 999));
             response.setMessage(bizException.getMessage());
+            if(bizException.getLevel()!=null){
+                switch (bizException.getLevel()) {
+                    case ERROR:
+                        logger.error(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
+                        break;
+                    case WARN:
+                        logger.warn(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
+                        break;
+                    case INFO:
+                        logger.info(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
+                        break;
+                    case DEBUG:
+                        logger.debug(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
+                        break;
+                    case TRACE:
+                        logger.trace(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
+                        break;
+                }
+            }
         } else {
             response.setError(999);
             response.setMessage("接口异常");
+            logger.error(httpRequestLog + ",异常信息：" + ex.getMessage(), ex);
         }
 
         StringBuilder message = new StringBuilder();
