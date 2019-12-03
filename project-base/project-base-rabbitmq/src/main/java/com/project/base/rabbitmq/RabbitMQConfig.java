@@ -40,6 +40,10 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
 
     @Bean
     public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
+        if (connectionFactory instanceof CachingConnectionFactory) {
+            CachingConnectionFactory cachingConnectionFactory = (CachingConnectionFactory) connectionFactory;
+            cachingConnectionFactory.getRabbitConnectionFactory().setHandshakeTimeout(60 * 1000);
+        }
         RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
         return rabbitAdmin;
     }
@@ -71,8 +75,8 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
                 factory.setPort(rabbitMQHost.getPort());
                 factory.setVirtualHost(rabbitMQHost.getVirtualHost());
                 factory.setCacheMode(CachingConnectionFactory.CacheMode.CHANNEL);
+                factory.getRabbitConnectionFactory().setHandshakeTimeout(1000 * 60);
                 factory.afterPropertiesSet();
-
                 RabbitMQConnectionFactoryWrapper rabbitMQConnectionFactoryWrapper = new RabbitMQConnectionFactoryWrapper();
                 rabbitMQConnectionFactoryWrapper.setConnectionFactory(factory);
                 rabbitMQConnectionFactoryWrapper.setFlag(rabbitMQHost.getFlag());
