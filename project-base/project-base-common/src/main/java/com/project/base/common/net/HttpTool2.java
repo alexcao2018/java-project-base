@@ -119,6 +119,25 @@ public class HttpTool2 {
     }
 
     /**
+     *
+     * @param url
+     */
+    public static void post(String url) {
+        post(url, null, null, EnumContentType.Json, SOCKET_TIME_OUT, true, null);
+    }
+
+    /**
+     * @param url                  请求url
+     * @param requestBody          请求体，map 或者 对象实例，将进行json序列化到请求体
+     * @param clazzOrTypeReference 返回单个对象 , 传参：Test.class , 返回集合, 传参：new TypeReference<List<Test>>() {}
+     * @param <T>
+     * @return
+     */
+    public static <T> T post(String url, Object requestBody, Object clazzOrTypeReference) {
+        return post(url, null, requestBody, EnumContentType.Json, SOCKET_TIME_OUT, true, clazzOrTypeReference);
+    }
+
+    /**
      * @param url                  请求url
      * @param urlParameterMap      拼接url 后面的key=value
      * @param requestBody          请求体，map 或者 对象实例，将进行json序列化到请求体
@@ -248,9 +267,9 @@ public class HttpTool2 {
                 sb.append(",响应内容:").append(responseStr);
             }
             logger.info(sb.toString());
-            if (clazzOrTypeReference instanceof Class) {
+            if (clazzOrTypeReference != null && clazzOrTypeReference instanceof Class) {
                 result = clazzOrTypeReference == String.class ? (T) responseStr : objectMapper.readValue(responseStr, (Class<T>) clazzOrTypeReference);
-            } else if (clazzOrTypeReference instanceof TypeReference) {
+            } else if (clazzOrTypeReference != null && clazzOrTypeReference instanceof TypeReference) {
                 result = objectMapper.readValue(responseStr, (TypeReference) clazzOrTypeReference);
             }
         } catch (Exception e) {
