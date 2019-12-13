@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.base.common.enums.EnumContentType;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.http.HttpEntity;
@@ -56,6 +57,18 @@ public class HttpTool2 {
     /**
      * 超时时间：3秒
      *
+     * @param url                  请求url
+     * @param clazzOrTypeReference 返回单个对象 , 传参：Test.class , 返回集合, 传参：new TypeReference<List<Test>>() {}
+     * @param <T>
+     * @return
+     */
+    public static <T> T get(String url, Object clazzOrTypeReference) {
+        return get(url, null, null, SOCKET_TIME_OUT, true, clazzOrTypeReference);
+    }
+
+    /**
+     * 超时时间：3秒
+     *
      * @param url
      * @param urlParameterMap      请求query string 参数
      * @param clazzOrTypeReference 返回单个对象 , 传参：Test.class , 返回集合, 传参：new TypeReference<List<Test>>() {}
@@ -63,19 +76,7 @@ public class HttpTool2 {
      * @return
      */
     public static <T> T get(String url, Map<String, String> urlParameterMap, Object clazzOrTypeReference) {
-        return get(url, urlParameterMap, SOCKET_TIME_OUT, true, clazzOrTypeReference);
-    }
-
-    /**
-     * 超时时间：3秒
-     *
-     * @param url                  请求url
-     * @param clazzOrTypeReference 返回单个对象 , 传参：Test.class , 返回集合, 传参：new TypeReference<List<Test>>() {}
-     * @param <T>
-     * @return
-     */
-    public static <T> T get(String url, Object clazzOrTypeReference) {
-        return get(url, null, SOCKET_TIME_OUT, true, clazzOrTypeReference);
+        return get(url, null, urlParameterMap, SOCKET_TIME_OUT, true, clazzOrTypeReference);
     }
 
 
@@ -89,6 +90,21 @@ public class HttpTool2 {
      * @return
      */
     public static <T> T get(String url, Map<String, String> urlParameterMap, Integer timeout, boolean isLogResponse, Object clazzOrTypeReference) {
+        return get(url, urlParameterMap, null, timeout, isLogResponse, clazzOrTypeReference);
+    }
+
+
+    /**
+     * @param url                  请求url
+     * @param urlParameterMap      请求query string 参数
+     * @param requestHeader        请求header 如果为null 则不处理
+     * @param timeout              超时时间 , 单位：毫秒
+     * @param isLogResponse        是否记录返回结果
+     * @param clazzOrTypeReference 返回单个对象 , 传参：Test.class , 返回集合, 传参：new TypeReference<List<Test>>() {}
+     * @param <T>
+     * @return
+     */
+    public static <T> T get(String url, Map<String, String> urlParameterMap, Map<String, String> requestHeader, Integer timeout, boolean isLogResponse, Object clazzOrTypeReference) {
         /* config request
         ----------------------------
          */
@@ -99,14 +115,25 @@ public class HttpTool2 {
          */
         url = buildUrl(url, urlParameterMap);
 
-
         HttpGet request = new HttpGet(url);
         request.setConfig(requestConfig);
+        if (requestHeader != null) {
+            for (String key : requestHeader.keySet()) {
+                request.addHeader(key, requestHeader.get(key));
+            }
+        }
 
         T result = executeRequest(request, isLogResponse, clazzOrTypeReference);
         return result;
     }
 
+
+    /**
+     * @param url
+     */
+    public static void post(String url) {
+        post(url, null, null, null, EnumContentType.Json, SOCKET_TIME_OUT, true, null);
+    }
 
     /**
      * @param url                  请求url
@@ -115,16 +142,9 @@ public class HttpTool2 {
      * @return
      */
     public static <T> T post(String url, Object clazzOrTypeReference) {
-        return post(url, null, null, EnumContentType.Json, SOCKET_TIME_OUT, true, clazzOrTypeReference);
+        return post(url, null, null, null, EnumContentType.Json, SOCKET_TIME_OUT, true, clazzOrTypeReference);
     }
 
-    /**
-     *
-     * @param url
-     */
-    public static void post(String url) {
-        post(url, null, null, EnumContentType.Json, SOCKET_TIME_OUT, true, null);
-    }
 
     /**
      * @param url                  请求url
@@ -134,7 +154,7 @@ public class HttpTool2 {
      * @return
      */
     public static <T> T post(String url, Object requestBody, Object clazzOrTypeReference) {
-        return post(url, null, requestBody, EnumContentType.Json, SOCKET_TIME_OUT, true, clazzOrTypeReference);
+        return post(url, null, null, requestBody, EnumContentType.Json, SOCKET_TIME_OUT, true, clazzOrTypeReference);
     }
 
     /**
@@ -146,7 +166,7 @@ public class HttpTool2 {
      * @return
      */
     public static <T> T post(String url, Map<String, String> urlParameterMap, Object requestBody, Object clazzOrTypeReference) {
-        return post(url, urlParameterMap, requestBody, EnumContentType.Json, SOCKET_TIME_OUT, true, clazzOrTypeReference);
+        return post(url, urlParameterMap, null, requestBody, EnumContentType.Json, SOCKET_TIME_OUT, true, clazzOrTypeReference);
     }
 
     /**
@@ -159,7 +179,7 @@ public class HttpTool2 {
      * @return
      */
     public static <T> T post(String url, Map<String, String> urlParameterMap, Object requestBody, Integer timeout, Object clazzOrTypeReference) {
-        return post(url, urlParameterMap, requestBody, EnumContentType.Json, timeout, true, clazzOrTypeReference);
+        return post(url, urlParameterMap, null, requestBody, EnumContentType.Json, timeout, true, clazzOrTypeReference);
     }
 
     /**
@@ -174,6 +194,22 @@ public class HttpTool2 {
      * @return
      */
     public static <T> T post(String url, Map<String, String> urlParameterMap, Object requestBody, EnumContentType contentType, Integer timeout, boolean isLogResponse, Object clazzOrTypeReference) {
+        return post(url, urlParameterMap, null, requestBody, contentType, timeout, isLogResponse, clazzOrTypeReference);
+    }
+
+    /**
+     * @param url                  请求url
+     * @param urlParameterMap      拼接url 后面的key=value
+     * @param requestHeader        请求header 如果为null 则不处理
+     * @param requestBody          请求体
+     * @param contentType          请求内容类型 application/json or application/x-www-urlencoded
+     * @param timeout              超时时间 , 单位：毫秒
+     * @param isLogResponse        是否记录请求返回
+     * @param clazzOrTypeReference 返回单个对象 , 传参：Test.class , 返回集合, 传参：new TypeReference<List<Test>>() {}
+     * @param <T>
+     * @return
+     */
+    public static <T> T post(String url, Map<String, String> urlParameterMap, Map<String, String> requestHeader, Object requestBody, EnumContentType contentType, Integer timeout, boolean isLogResponse, Object clazzOrTypeReference) {
         /* config request
         ----------------------------
          */
@@ -187,6 +223,11 @@ public class HttpTool2 {
         HttpPost request = new HttpPost(url);
         request.setConfig(requestConfig);
         request.addHeader("Content-Type", contentType.getName());
+        if (requestHeader != null) {
+            for (String key : requestHeader.keySet()) {
+                request.addHeader(key, requestHeader.get(key));
+            }
+        }
 
         /* write body to request
         ----------------------------
@@ -229,6 +270,45 @@ public class HttpTool2 {
 
 
     /**
+     * 下载文件到byte[]
+     *
+     * @param url
+     * @param timeout
+     * @return
+     */
+    public static byte[] download(String url, Integer timeout) {
+        CloseableHttpResponse response = null;
+        HttpGet request = new HttpGet(url);
+        RequestConfig requestConfig = buildRequestConfig(timeout);
+        request.setConfig(requestConfig);
+        byte[] byteArray = null;
+        try {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+            response = httpClient.execute(request);
+            stopWatch.stop();
+
+            StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,响应时间:{1}毫秒", request.getURI().toString(), stopWatch.getTime()));
+            logger.info(sb.toString());
+
+            HttpEntity httpEntity = response.getEntity();
+            byteArray = IOUtils.toByteArray(httpEntity.getContent());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (response != null) {
+                try {
+                    EntityUtils.consume(response.getEntity());
+                    response.close();
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+        return byteArray;
+    }
+
+    /**
      * @param request
      * @param isLogResponse
      * @param clazzOrTypeReference
@@ -262,7 +342,6 @@ public class HttpTool2 {
             StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,请求体：【{1}】,响应时间:{2}毫秒", requestBody, request.getURI().toString(), stopWatch.getTime()));
             HttpEntity httpEntity = response.getEntity();
             String responseStr = EntityUtils.toString(httpEntity);
-
             if (isLogResponse) {
                 sb.append(",响应内容:").append(responseStr);
             }
