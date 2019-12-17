@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.base.common.enums.EnumContentType;
+import com.project.base.common.json.JsonTool;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -48,7 +49,8 @@ public class HttpTool2 {
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
-                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         poolingHttpClientConnectionManager.setMaxTotal(200);
         poolingHttpClientConnectionManager.setDefaultMaxPerRoute(200);
         httpClient = HttpClients.custom().setConnectionManager(poolingHttpClientConnectionManager).build();
@@ -125,6 +127,22 @@ public class HttpTool2 {
 
         T result = executeRequest(request, isLogResponse, clazzOrTypeReference);
         return result;
+    }
+
+    /**
+     * 通过get  下载内容到byte[]
+     *
+     * @param url
+     * @param timeout
+     * @return
+     */
+    public static byte[] getToByteArray(String url, Integer timeout) {
+        CloseableHttpResponse response = null;
+        HttpGet request = new HttpGet(url);
+        RequestConfig requestConfig = buildRequestConfig(timeout);
+        request.setConfig(requestConfig);
+        byte[] byteArray = executeRequest(request, StringUtils.EMPTY);
+        return byteArray;
     }
 
 
@@ -220,49 +238,13 @@ public class HttpTool2 {
          */
         url = buildUrl(url, urlParameterMap);
 
-        HttpPost request = new HttpPost(url);
-        request.setConfig(requestConfig);
-        request.addHeader("Content-Type", contentType.getName());
-        if (requestHeader != null) {
-            for (String key : requestHeader.keySet()) {
-                request.addHeader(key, requestHeader.get(key));
-            }
-        }
-
-        /* write body to request
+         /*
         ----------------------------
          */
+        HttpPost request = buildHttpPost(url, requestConfig, contentType, requestHeader, requestBody);
         String jsonBody = StringUtils.EMPTY;
-        if (requestBody != null) {
-            switch (contentType) {
-                case Json:
-                    try {
-                        jsonBody = objectMapper.writeValueAsString(requestBody);
-                        StringEntity stringEntity = new StringEntity(jsonBody, StandardCharsets.UTF_8.name());
-                        request.setEntity(stringEntity);
-                    } catch (JsonProcessingException e) {
-                        logger.error(e.getMessage(), e);
-                    }
-                    break;
-                case XWwwFormUrlEncoded:
-                    if (!(requestBody instanceof Map)) {
-                        throw new RuntimeException("request body must be Map<String,String> instance.");
-                    }
-                    try {
-                        List<NameValuePair> nameValuePairCollection = new ArrayList<>();
-                        Map<String, String> stringMapBody = (Map<String, String>) requestBody;
-                        stringMapBody.forEach((k, v) -> {
-                            NameValuePair nameValuePair = new BasicNameValuePair(k, v);
-                            nameValuePairCollection.add(nameValuePair);
-                        });
-                        StringEntity urlEncodedFormEntity = new UrlEncodedFormEntity(nameValuePairCollection, StandardCharsets.UTF_8.name());
-                        request.setEntity(urlEncodedFormEntity);
-                    } catch (UnsupportedEncodingException e) {
-                        logger.error(e.getMessage(), e);
-                    }
-                    break;
-            }
-        }
+        if (requestBody != null)
+            jsonBody = JsonTool.serializeNoException(requestBody);
 
         T result = executeRequest(request, jsonBody, isLogResponse, clazzOrTypeReference);
         return result;
@@ -270,43 +252,51 @@ public class HttpTool2 {
 
 
     /**
-     * 下载文件到byte[]
+     * 通过post 下载内容到byte[]
      *
      * @param url
+     * @param requestBody
      * @param timeout
      * @return
      */
-    public static byte[] download(String url, Integer timeout) {
-        CloseableHttpResponse response = null;
-        HttpGet request = new HttpGet(url);
-        RequestConfig requestConfig = buildRequestConfig(timeout);
-        request.setConfig(requestConfig);
-        byte[] byteArray = null;
-        try {
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
-            response = httpClient.execute(request);
-            stopWatch.stop();
-
-            StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,响应时间:{1}毫秒", request.getURI().toString(), stopWatch.getTime()));
-            logger.info(sb.toString());
-
-            HttpEntity httpEntity = response.getEntity();
-            byteArray = IOUtils.toByteArray(httpEntity.getContent());
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        } finally {
-            if (response != null) {
-                try {
-                    EntityUtils.consume(response.getEntity());
-                    response.close();
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
-        return byteArray;
+    public static byte[] postToByteArray(String url, Object requestBody, Integer timeout) {
+        return postToByteArray(url, null, null, requestBody, EnumContentType.Json, timeout, true);
     }
+
+
+    /**
+     * 通过post 下载内容到byte[]
+     *
+     * @param url
+     * @param urlParameterMap
+     * @param requestHeader
+     * @param requestBody
+     * @param contentType
+     * @param timeout
+     * @param isLogResponse
+     * @return
+     */
+    public static byte[] postToByteArray(String url, Map<String, String> urlParameterMap, Map<String, String> requestHeader, Object requestBody, EnumContentType contentType, Integer timeout, boolean isLogResponse) {
+        /* config request
+        ----------------------------
+         */
+        RequestConfig requestConfig = buildRequestConfig(timeout);
+
+        /* add request parameter to url
+        ----------------------------
+         */
+        url = buildUrl(url, urlParameterMap);
+
+        HttpPost request = buildHttpPost(url, requestConfig, contentType, requestHeader, requestBody);
+
+        String jsonBody = StringUtils.EMPTY;
+        if (requestBody != null)
+            jsonBody = JsonTool.serializeNoException(requestBody);
+
+        byte[] result = executeRequest(request, jsonBody);
+        return result;
+    }
+
 
     /**
      * @param request
@@ -366,6 +356,102 @@ public class HttpTool2 {
 
         return result;
     }
+
+    /**
+     * 执行请求 返回byte[]
+     *
+     * @param request
+     * @param requestBody 只是做日志记录
+     * @return
+     */
+    private static byte[] executeRequest(HttpUriRequest request, String requestBody) {
+        CloseableHttpResponse response = null;
+        byte[] byteArray = null;
+        try {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+            response = httpClient.execute(request);
+            stopWatch.stop();
+
+            StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,请求体：【{1}】,响应时间:{2}毫秒", requestBody, request.getURI().toString(), stopWatch.getTime()));
+            logger.info(sb.toString());
+
+            HttpEntity httpEntity = response.getEntity();
+            byteArray = IOUtils.toByteArray(httpEntity.getContent());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (response != null) {
+                try {
+                    EntityUtils.consume(response.getEntity());
+                    response.close();
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+        return byteArray;
+    }
+
+    /**
+     * @param url
+     * @param requestConfig
+     * @param contentType
+     * @param requestHeader
+     * @param requestBody
+     * @return
+     */
+    private static HttpPost buildHttpPost(String url
+            , RequestConfig requestConfig
+            , EnumContentType contentType
+            , Map<String, String> requestHeader
+            , Object requestBody) {
+        HttpPost request = new HttpPost(url);
+        request.setConfig(requestConfig);
+        request.addHeader("Content-Type", contentType.getName());
+        if (requestHeader != null) {
+            for (String key : requestHeader.keySet()) {
+                request.addHeader(key, requestHeader.get(key));
+            }
+        }
+
+        /* write body to request
+        ----------------------------
+         */
+        if (requestBody != null) {
+            switch (contentType) {
+                case Json:
+                    try {
+                        String jsonBody = objectMapper.writeValueAsString(requestBody);
+                        StringEntity stringEntity = new StringEntity(jsonBody, StandardCharsets.UTF_8.name());
+                        request.setEntity(stringEntity);
+                    } catch (JsonProcessingException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                    break;
+                case XWwwFormUrlEncoded:
+                    if (!(requestBody instanceof Map)) {
+                        throw new RuntimeException("request body must be Map<String,String> instance.");
+                    }
+                    try {
+                        List<NameValuePair> nameValuePairCollection = new ArrayList<>();
+                        Map<String, String> stringMapBody = (Map<String, String>) requestBody;
+                        stringMapBody.forEach((k, v) -> {
+                            NameValuePair nameValuePair = new BasicNameValuePair(k, v);
+                            nameValuePairCollection.add(nameValuePair);
+                        });
+                        StringEntity urlEncodedFormEntity = new UrlEncodedFormEntity(nameValuePairCollection, StandardCharsets.UTF_8.name());
+                        request.setEntity(urlEncodedFormEntity);
+                    } catch (UnsupportedEncodingException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                    break;
+            }
+        }
+
+        return request;
+    }
+
 
     /**
      * 获取默认request config
