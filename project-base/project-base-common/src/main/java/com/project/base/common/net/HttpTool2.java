@@ -329,7 +329,7 @@ public class HttpTool2 {
             response = httpClient.execute(request);
             stopWatch.stop();
 
-            StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,请求体：【{1}】,响应时间:{2}毫秒", requestBody, request.getURI().toString(), stopWatch.getTime()));
+            StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,请求体：【{1}】,响应时间:{2}毫秒", request.getURI().toString(), requestBody, stopWatch.getTime()));
             HttpEntity httpEntity = response.getEntity();
             String responseStr = EntityUtils.toString(httpEntity);
             if (isLogResponse) {
@@ -373,7 +373,7 @@ public class HttpTool2 {
             response = httpClient.execute(request);
             stopWatch.stop();
 
-            StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,请求体：【{1}】,响应时间:{2}毫秒", requestBody, request.getURI().toString(), stopWatch.getTime()));
+            StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,请求体：【{1}】,响应时间:{2}毫秒", request.getURI().toString(), requestBody, stopWatch.getTime()));
             logger.info(sb.toString());
 
             HttpEntity httpEntity = response.getEntity();
