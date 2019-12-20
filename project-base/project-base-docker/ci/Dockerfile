@@ -1,5 +1,9 @@
 FROM openjdk:8u212-jdk-alpine
 
+# change apk mirror
+# RUN echo http://mirrors.aliyun.com/alpine/v3.9/main > /etc/apk/repositories
+# RUN echo http://mirrors.aliyun.com/alpine/v3.9/community >> /etc/apk/repositories
+
 # arthas yun
 ENV ARTHAS_JAR_FILE @arthas_jar_file
 
