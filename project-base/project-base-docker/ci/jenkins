@@ -28,7 +28,7 @@ node{
             echo 'docker build'
 
             echo '************** remove old images  **************'
-            //sh "docker rmi \$(docker images --format '{{.Repository}}:{{.Tag}}' | grep '${dockerImageName}:${dockerImageVersion}')"
+            sh "docker rmi \$(docker images --format '{{.Repository}}:{{.Tag}}' | grep '${dockerImageName}:${dockerImageVersion}')"
 
             echo 'download arthas-boot.jar'
             sh "curl ${arthasJarUrl} --output ci/${arthasJarName}"
