@@ -10,6 +10,7 @@ RUN apk add curl
 RUN apk add busybox-extras
 RUN apk add tcpdump
 RUN apk add --no-cache tini
+RUN apk add --no-cache fontconfig
 # set time zone
 RUN apk add --no-cache tzdata && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
