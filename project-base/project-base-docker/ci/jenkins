@@ -3,9 +3,9 @@ node{
     def dockerImageName = 'project-base-8-jdk-alpine'
     def dockerImageModule = 'api-mall'
     def dockerImageVersion = '1.0.0'
-    def harborServer = 'harbor.suiyi.com.cn'
-    def harborUser = 'admin'
-    def harborPwd  = 'Sy123456'
+    def harborServer = 'harbor.34580.com'
+    def harborUser = 'harboruser'
+    def harborPwd = 'Sy123456'
 
     // ting yun
 	def tingyunJarUrl = 'http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-releases/com/tingyun/tingyun-agent-java/2.6.0/tingyun-agent-java-2.6.0.jar'
