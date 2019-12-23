@@ -15,6 +15,9 @@ node{
     def arthasJarUrl = "https://alibaba.github.io/arthas/arthas-boot.jar"
     def arthasJarName = "arthas-boot.jar"
 
+    // sky walking
+    def skyWalkingAgentDir = "skywalking-agent"
+
 
     def dockerImageTag = harborServer + '/' + dockerImageModule + '/' + dockerImageName + ':' + dockerImageVersion
     def workspace = sh (
@@ -37,6 +40,10 @@ node{
             echo 'download tingyun-agent-java.jar'
             sh "curl ${tingyunJarUrl} --output ci/${tingyunJarName}"
             sh "cd ci && sed -i 's/@tingyun_jar_file/${tingyunJarName}/g' Dockerfile "
+
+            echo 'copy sky walking agent to ci dir'
+            sh "cd ci && sed -i 's/@skywalking_agent_dir/${skyWalkingAgentDir}/g' Dockerfile "
+            sh "cp -r ${skyWalkingAgentDir} ci"
 
             sh "cd ci && docker build -t ${dockerImageTag} ."
         }
