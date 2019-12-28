@@ -45,11 +45,12 @@ public class TableInfo {
                 String columnName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, propertyName);
                 ColumnInfo columnInfo = new ColumnInfo(columnName, propertyName);
 
+                Column columnAnnotation = field.getAnnotation(Column.class);
+                columnInfo.setName(columnAnnotation == null ? columnName : columnAnnotation.name());
+
                 Id idAnnotation = field.getAnnotation(Id.class);
                 if (idAnnotation != null) {
-                    Column columnAnnotation = field.getAnnotation(Column.class);
                     GeneratedValue generatedValue = field.getAnnotation(GeneratedValue.class);
-                    columnInfo.setName(columnAnnotation == null ? field.getName() : columnAnnotation.name());
                     columnInfo.setPrimaryKey(true);
                     columnInfo.setGeneratedValue(generatedValue != null);
                     this.primaryKeyColumn = columnInfo;
