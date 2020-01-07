@@ -77,6 +77,7 @@ public class ConsumeLogFilter implements Filter {
             String errorMessage = MessageFormat.format("dubbo 请求异常:{0},{1}:{2},参数：{3}", result.getException().getMessage(), invoker.getInterface().getName(), invocation.getMethodName(), jsonParameter(invocation.getArguments()));
             if (result.getException() instanceof BizException) {
                 BizException bizException = (BizException) result.getException();
+
                 if (bizException.getLevel() == null) {
                     bizException.setLevel(ERROR);
                 }
