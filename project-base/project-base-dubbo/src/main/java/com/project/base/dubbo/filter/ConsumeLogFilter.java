@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.base.common.json.JsonTool;
 import com.project.base.dubbo.init.ApplicationContextAware4Dubbo;
 import com.project.base.dubbo.init.DubboConfiguration;
+import com.project.base.model.exception.BizException;
 import com.project.base.trace.TraceIdGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -70,9 +71,32 @@ public class ConsumeLogFilter implements Filter {
         StopWatch stopWatch = StopWatch.createStarted();
         Result result = invoker.invoke(invocation);
 
-
         if (result.hasException()) {
-            logger.error(MessageFormat.format("dubbo 请求异常:{0},{1}:{2},参数：{3}", result.getException().getMessage(), invoker.getInterface().getName(), invocation.getMethodName(), jsonParameter(invocation.getArguments())), result.getException());
+            String errorMessage = MessageFormat.format("dubbo 请求异常:{0},{1}:{2},参数：{3}", result.getException().getMessage(), invoker.getInterface().getName(), invocation.getMethodName(), jsonParameter(invocation.getArguments()));
+            if (result.getException() instanceof BizException) {
+                BizException bizException = (BizException) result.getException();
+                if (bizException.getLevel() != null) {
+                    switch (bizException.getLevel()) {
+                        case ERROR:
+                            logger.error(errorMessage, bizException);
+                            break;
+                        case WARN:
+                            logger.warn(errorMessage, bizException);
+                            break;
+                        case INFO:
+                            logger.info(errorMessage, bizException);
+                            break;
+                        case DEBUG:
+                            logger.debug(errorMessage, bizException);
+                            break;
+                        case TRACE:
+                            logger.trace(errorMessage, bizException);
+                            break;
+                    }
+                }
+            } else {
+                logger.error(errorMessage, result.getException());
+            }
             return result;
         }
 
