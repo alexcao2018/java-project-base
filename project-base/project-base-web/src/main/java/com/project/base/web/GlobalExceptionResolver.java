@@ -24,6 +24,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
+import static org.slf4j.event.Level.ERROR;
+
 
 public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
 
@@ -70,6 +72,11 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
             BizException bizException = (BizException) ex;
             response.setError(tryParse(bizException.getCode(), 999));
             response.setMessage(bizException.getMessage());
+
+            if (bizException.getLevel() == null) {
+                bizException.setLevel(ERROR);
+            }
+
             if(bizException.getLevel()!=null){
                 switch (bizException.getLevel()) {
                     case ERROR:

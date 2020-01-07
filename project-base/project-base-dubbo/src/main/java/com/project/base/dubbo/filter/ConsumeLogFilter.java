@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
+
+import static org.slf4j.event.Level.ERROR;
 /*
 
     第1步：
@@ -75,24 +77,25 @@ public class ConsumeLogFilter implements Filter {
             String errorMessage = MessageFormat.format("dubbo 请求异常:{0},{1}:{2},参数：{3}", result.getException().getMessage(), invoker.getInterface().getName(), invocation.getMethodName(), jsonParameter(invocation.getArguments()));
             if (result.getException() instanceof BizException) {
                 BizException bizException = (BizException) result.getException();
-                if (bizException.getLevel() != null) {
-                    switch (bizException.getLevel()) {
-                        case ERROR:
-                            logger.error(errorMessage, bizException);
-                            break;
-                        case WARN:
-                            logger.warn(errorMessage, bizException);
-                            break;
-                        case INFO:
-                            logger.info(errorMessage, bizException);
-                            break;
-                        case DEBUG:
-                            logger.debug(errorMessage, bizException);
-                            break;
-                        case TRACE:
-                            logger.trace(errorMessage, bizException);
-                            break;
-                    }
+                if (bizException.getLevel() == null) {
+                    bizException.setLevel(ERROR);
+                }
+                switch (bizException.getLevel()) {
+                    case ERROR:
+                        logger.error(errorMessage, bizException);
+                        break;
+                    case WARN:
+                        logger.warn(errorMessage, bizException);
+                        break;
+                    case INFO:
+                        logger.info(errorMessage, bizException);
+                        break;
+                    case DEBUG:
+                        logger.debug(errorMessage, bizException);
+                        break;
+                    case TRACE:
+                        logger.trace(errorMessage, bizException);
+                        break;
                 }
             } else {
                 logger.error(errorMessage, result.getException());
