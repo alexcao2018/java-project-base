@@ -109,8 +109,10 @@ public class LogFilter extends OncePerRequestFilter {
             HandlerExecutionChain handler = handlerMapping.getHandler(request);
             if (handler == null)
                 return false;
-            LogResponse logResponseAnnotation = ((HandlerMethod) handler.getHandler()).getMethod().getAnnotation(LogResponse.class);
-            return logResponseAnnotation != null && logResponseAnnotation.value();
+            LogResponse logResponse1Annotation = ((HandlerMethod) handler.getHandler()).getMethod().getAnnotation(LogResponse.class);
+            com.project.base.model.annotation.LogResponse logResponse2Annotation = ((HandlerMethod) handler.getHandler()).getMethod().getAnnotation(com.project.base.model.annotation.LogResponse.class);
+
+            return (logResponse1Annotation != null && logResponse1Annotation.value()) || (logResponse2Annotation != null && logResponse2Annotation.value());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

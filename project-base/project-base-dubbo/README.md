@@ -68,11 +68,8 @@
              2、可以使用正常调用，方法签名和原接口一致，进行override，DubboBatchOption 中 mergeResult 设置为true
 4、记录日志
     默认会记录dubbo调用日志 并且会记录调用结果，由于某些方法返回结果过多，记录日志会造成性能问题，
-    所以由第二个参数控制排除方法：record-invoke-exclude-method
     
     dubbo:
       log:
-        record-invoke-result: true  // 是否记录结果
-        record-invoke-exclude-method: couponReceivedAmount,test22  // 排除哪些方法的结果      
-         
+        logResponse: true  // 是否记录结果         
         

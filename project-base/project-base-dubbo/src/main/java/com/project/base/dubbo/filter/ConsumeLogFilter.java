@@ -4,9 +4,9 @@ import com.alibaba.dubbo.common.extension.Activate;
 import com.alibaba.dubbo.rpc.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.base.common.json.JsonTool;
 import com.project.base.dubbo.init.ApplicationContextAware4Dubbo;
 import com.project.base.dubbo.init.DubboConfiguration;
+import com.project.base.model.annotation.LogResponse;
 import com.project.base.model.exception.BizException;
 import com.project.base.trace.TraceIdGenerator;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +14,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
@@ -107,11 +108,24 @@ public class ConsumeLogFilter implements Filter {
         stopWatch.stop();
         long milliSeconds = stopWatch.getTime(TimeUnit.MILLISECONDS);
 
-        boolean isNotExclude = true;
-        if (dubboConfiguration.getRecordInvokeExcludeMethod() != null) {
-            isNotExclude = dubboConfiguration.getRecordInvokeExcludeMethod().stream().filter(x -> x.equalsIgnoreCase(invocation.getMethodName())).count() == 0;
+        /* 判读方法上是否有logResponse 注解
+        -----------------------------------
+         */
+        boolean logResponse = false;
+        try {
+            Method invokeMethod = invoker.getInterface().getDeclaredMethod(invocation.getMethodName(), invocation.getParameterTypes());
+            LogResponse logResponseAnnotation = invokeMethod.getAnnotation(LogResponse.class);
+            if (logResponseAnnotation != null && logResponseAnnotation.value()) {
+                logResponse = true;
+            }
+        } catch (NoSuchMethodException e) {
+            logger.error("project.base.dubbo:" + e.getMessage(), e);
         }
-        if ((dubboConfiguration.isRecordInvokeResult() && isNotExclude) || logger.isDebugEnabled()) {
+
+        /* 记录注解
+        -----------------------------------
+         */
+        if (logResponse || dubboConfiguration.isLogResponse() || logger.isDebugEnabled()) {
             String jsonResult = jsonParameter(result.getValue());
             logger.warn("dubbo 请求调用，时长:{},{}:{},参数：{},结果：{}", milliSeconds, invoker.getInterface().getName(), invocation.getMethodName(), jsonParameter(invocation.getArguments()), jsonResult);
         } else {
