@@ -51,6 +51,10 @@ public interface RedisClient {
 
     boolean expire(String key, int timeout);
 
+    long increment(String key, long delta);
+
+    long decrement(String key, long delta);
+
     boolean hasKey(String key);
 
     Set<String> keys(String pattern);

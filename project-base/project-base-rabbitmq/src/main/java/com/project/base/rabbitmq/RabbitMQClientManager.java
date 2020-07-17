@@ -70,4 +70,8 @@ public class RabbitMQClientManager {
         }
     }
 
+    public List<RabbitMQAdminWrapper> getRabbitMQAdminWrapperCollection() {
+        return rabbitMQAdminWrapperCollection;
+    }
+
 }

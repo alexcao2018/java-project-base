@@ -42,7 +42,7 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
         try {
             httpRequestUrl = URLDecoder.decode(httpRequestUrl, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         }
 
         String httpPostBody = StringUtils.EMPTY;
@@ -53,7 +53,7 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
                 try {
                     httpPostBody = IOUtils.toString(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8.name());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(),e);
                 }
             }
         }
@@ -116,7 +116,7 @@ public class GlobalExceptionResolver extends ExceptionHandlerExceptionResolver {
             String json = objectMapper.writeValueAsString(response);
             httpServletResponse.getWriter().write(json);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         }
 
         return modelAndView;

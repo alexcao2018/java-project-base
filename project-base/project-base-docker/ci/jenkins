@@ -11,12 +11,12 @@ node{
 	def tingyunJarUrl = 'http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-releases/com/tingyun/tingyun-agent-java/2.6.0/tingyun-agent-java-2.6.0.jar'
     def tingyunJarName = 'tingyun-agent-java.jar'
 
-    // arthas-boot
-    def arthasJarUrl = "https://alibaba.github.io/arthas/arthas-boot.jar"
-    def arthasJarName = "arthas-boot.jar"
+    // arthas
+    def arthasDir = "arthas"
 
     // sky walking
     def skyWalkingAgentDir = "skywalking-agent"
+
 
 
     def dockerImageTag = harborServer + '/' + dockerImageModule + '/' + dockerImageName + ':' + dockerImageVersion
@@ -25,34 +25,58 @@ node{
             returnStdout: true
     ).trim()
 
+    def dockerImageResourceDir = workspace + "/image-resource"
+
     dir(workspace){
 
-        stage('Docker build') {
-            echo 'docker build'
+        stage('Prepare Docker') {
+            echo 'prepare Docker'
 
-            echo '************** remove old images  **************'
-            sh "docker rmi \$(docker images --format '{{.Repository}}:{{.Tag}}' | grep '${dockerImageName}:${dockerImageVersion}')"
+            sh "rm -rf ${dockerImageResourceDir} && mkdir ${dockerImageResourceDir}"
 
-            echo 'download arthas-boot.jar'
-            sh "curl ${arthasJarUrl} --output ci/${arthasJarName}"
-            sh "cd ci && sed -i 's/@arthas_jar_file/${arthasJarName}/g' Dockerfile "
+            try {
+                echo '************** remove old images  **************'
+                sh "docker rmi \$(docker images --format '{{.Repository}}:{{.Tag}}' | grep '${dockerImageName}:${dockerImageVersion}')"
+            }
+            catch (exc) {
+
+            }
+
+            echo 'copy docker file'
+            sh "cp ci/Dockerfile ${dockerImageResourceDir}"
 
             echo 'download tingyun-agent-java.jar'
-            sh "curl ${tingyunJarUrl} --output ci/${tingyunJarName}"
-            sh "cd ci && sed -i 's/@tingyun_jar_file/${tingyunJarName}/g' Dockerfile "
+            sh "curl ${tingyunJarUrl} --output ${dockerImageResourceDir}/${tingyunJarName}"
 
-            echo 'copy sky walking agent to ci dir'
-            sh "cd ci && sed -i 's/@skywalking_agent_dir/${skyWalkingAgentDir}/g' Dockerfile "
-            sh "cp -r ${skyWalkingAgentDir} ci"
+            echo 'copy sky walking agent'
+            sh "cp -r ${skyWalkingAgentDir} ${dockerImageResourceDir}"
 
-            sh "cd ci && docker build -t ${dockerImageTag} ."
+            echo 'copy arthas'
+            sh "cp -r ${arthasDir} ${dockerImageResourceDir}"
+
         }
 
-        stage('Docker push') {
-            echo 'Docker push'
-            sh "docker login -u ${harborUser} -p ${harborPwd} ${harborServer}"
-            sh "docker push ${dockerImageTag}"
-            sh "docker logout ${harborServer}"
+        dir(dockerImageResourceDir) {
+            stage('Docker build') {
+                echo '--------- docker image resource begin --------------'
+                sh 'ls -l'
+                echo '--------- docker image resource end   --------------'
+
+                sh "sed -i 's/@arthas_dir/${arthasDir}/g' Dockerfile "
+                sh "sed -i 's/@tingyun_jar_file/${tingyunJarName}/g' Dockerfile "
+                sh "sed -i 's/@skywalking_agent_dir/${skyWalkingAgentDir}/g' Dockerfile "
+
+                sh 'cat Dockerfile'
+
+                sh "docker build --no-cache -t ${dockerImageTag} ."
+
+            }
+            stage('Docker push'){
+                echo 'Docker push'
+                sh "docker login -u ${harborUser} -p ${harborPwd} ${harborServer}"
+                sh "docker push ${dockerImageTag}"
+                sh "docker logout ${harborServer}"
+            }
         }
     }
 

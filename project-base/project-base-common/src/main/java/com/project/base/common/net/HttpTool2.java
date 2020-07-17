@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class HttpTool2 {
      * @return
      */
     public static <T> T get(String url, Map<String, String> urlParameterMap, Object clazzOrTypeReference) {
-        return get(url, null, urlParameterMap, SOCKET_TIME_OUT, true, clazzOrTypeReference);
+        return get(url, urlParameterMap, null, SOCKET_TIME_OUT, true, clazzOrTypeReference);
     }
 
 
@@ -323,15 +324,15 @@ public class HttpTool2 {
         CloseableHttpResponse response = null;
 
         T result = null;
+        StopWatch stopWatch = new StopWatch();
         try {
-            StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             response = httpClient.execute(request);
             stopWatch.stop();
 
             StringBuilder sb = new StringBuilder(MessageFormat.format("请求Url:【{0}】,请求体：【{1}】,响应时间:{2}毫秒", request.getURI().toString(), requestBody, stopWatch.getTime()));
             HttpEntity httpEntity = response.getEntity();
-            String responseStr = EntityUtils.toString(httpEntity);
+            String responseStr = EntityUtils.toString(httpEntity, Charset.forName("UTF-8"));
             if (isLogResponse) {
                 sb.append(",响应内容:").append(responseStr);
             }
@@ -342,7 +343,8 @@ public class HttpTool2 {
                 result = objectMapper.readValue(responseStr, (TypeReference) clazzOrTypeReference);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            StringBuilder sb = new StringBuilder(MessageFormat.format("请求异常,请求Url:【{0}】,请求体：【{1}】,响应时间:{2}毫秒。", request.getURI().toString(), requestBody, stopWatch.getTime()));
+            logger.error(sb +"异常堆栈：" +e.getMessage(), e);
         } finally {
             if (response != null) {
                 try {
@@ -506,6 +508,10 @@ public class HttpTool2 {
 
     public static ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+
+    public static CloseableHttpClient getHttpClient() {
+        return httpClient;
     }
 
     /*

@@ -2,15 +2,19 @@ package com.project.base.rabbitmq;
 
 import com.project.base.common.lang.reflect.ReflectTool;
 import org.springframework.amqp.rabbit.annotation.RabbitListenerConfigurer;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistrar;
+import org.springframework.amqp.rabbit.retry.MessageRecoverer;
+import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -66,6 +70,8 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
         List<RabbitMQConnectionFactoryWrapper> rabbitMQConnectionFactoryWrapperCollection = new ArrayList<>();
 
         List<RabbitMQProperties.RabbitMQHost> hosts = rabbitMQProperties.getHosts();
+
+        RabbitMQProperties.Cache cacheConfig = rabbitMQProperties.getCache();
         if (hosts != null && hosts.size() > 0) {
             for (RabbitMQProperties.RabbitMQHost rabbitMQHost : hosts) {
                 CachingConnectionFactory factory = new CachingConnectionFactory();
@@ -74,9 +80,26 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
                 factory.setPassword(rabbitMQHost.getPassword());
                 factory.setPort(rabbitMQHost.getPort());
                 factory.setVirtualHost(rabbitMQHost.getVirtualHost());
-                factory.setCacheMode(CachingConnectionFactory.CacheMode.CHANNEL);
                 factory.getRabbitConnectionFactory().setHandshakeTimeout(1000 * 60);
+
+                if (cacheConfig.getChannel().getSize() != null) {
+                    factory.setChannelCacheSize(cacheConfig.getChannel().getSize());
+                }
+
+                if (cacheConfig.getChannel().getCheckoutTimeout() != null) {
+                    factory.setChannelCheckoutTimeout(cacheConfig.getChannel().getCheckoutTimeout());
+                }
+
+                if (cacheConfig.getConnection().getMode() != null) {
+                    factory.setCacheMode(cacheConfig.getConnection().getMode());
+                }
+
+                if (cacheConfig.getConnection().getSize() != null) {
+                    factory.setConnectionCacheSize(cacheConfig.getConnection().getSize());
+                }
+
                 factory.afterPropertiesSet();
+
                 RabbitMQConnectionFactoryWrapper rabbitMQConnectionFactoryWrapper = new RabbitMQConnectionFactoryWrapper();
                 rabbitMQConnectionFactoryWrapper.setConnectionFactory(factory);
                 rabbitMQConnectionFactoryWrapper.setFlag(rabbitMQHost.getFlag());
@@ -107,10 +130,48 @@ public class RabbitMQConfig implements RabbitListenerConfigurer {
             SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory = defaultListableBeanFactory.getBean(ContainerFactoryBeanPrefix + rabbitMQConnectionFactoryWrapper.getFlag(), SimpleRabbitListenerContainerFactory.class);
 
             simpleRabbitListenerContainerFactory.setConnectionFactory(rabbitMQConnectionFactoryWrapper.getConnectionFactory());
-
             if (!rabbitMQConnectionFactoryWrapper.getRabbitMQHostProperty().getDisableListenerConverter()) {
                 simpleRabbitListenerContainerFactory.setMessageConverter(new Jackson2JsonMessageConverter());
             }
+
+            RabbitMQProperties.Listener listenerConfig = rabbitMQProperties.getListener();
+            simpleRabbitListenerContainerFactory.setAutoStartup(listenerConfig.isAutoStartup());
+            if (listenerConfig.getAcknowledgeMode() != null) {
+                simpleRabbitListenerContainerFactory.setAcknowledgeMode(listenerConfig.getAcknowledgeMode());
+            }
+            if (listenerConfig.getConcurrency() != null) {
+                simpleRabbitListenerContainerFactory.setConcurrentConsumers(listenerConfig.getConcurrency());
+            }
+            if (listenerConfig.getMaxConcurrency() != null) {
+                simpleRabbitListenerContainerFactory.setMaxConcurrentConsumers(listenerConfig.getMaxConcurrency());
+            }
+            if (listenerConfig.getPrefetch() != null) {
+                simpleRabbitListenerContainerFactory.setPrefetchCount(listenerConfig.getPrefetch());
+            }
+            if (listenerConfig.getTransactionSize() != null) {
+                simpleRabbitListenerContainerFactory.setTxSize(listenerConfig.getTransactionSize());
+            }
+            if (listenerConfig.getDefaultRequeueRejected() != null) {
+                simpleRabbitListenerContainerFactory.setDefaultRequeueRejected(listenerConfig.getDefaultRequeueRejected());
+            }
+            if (listenerConfig.getIdleEventInterval() != null) {
+                simpleRabbitListenerContainerFactory.setIdleEventInterval(listenerConfig.getIdleEventInterval());
+            }
+
+           /* RabbitProperties.ListenerRetry retryConfig = listenerConfig.getRetry();
+            if (retryConfig.isEnabled()) {
+                RetryInterceptorBuilder<?> builder = (retryConfig.isStateless()
+                        ? RetryInterceptorBuilder.stateless()
+                        : RetryInterceptorBuilder.stateful());
+                builder.maxAttempts(retryConfig.getMaxAttempts());
+                builder.backOffOptions(retryConfig.getInitialInterval(),
+                        retryConfig.getMultiplier(), retryConfig.getMaxInterval());
+                MessageRecoverer recoverer = (this.messageRecoverer != null
+                        ? this.messageRecoverer : new RejectAndDontRequeueRecoverer());
+                builder.recoverer(recoverer);
+                factory.setAdviceChain(builder.build());
+            }*/
+
 
             RabbitListenerContainerFactoryWrapper rabbitListenerContainerFactoryWrapper = new RabbitListenerContainerFactoryWrapper();
             rabbitListenerContainerFactoryWrapper.setRabbitListenerContainerFactory(simpleRabbitListenerContainerFactory);

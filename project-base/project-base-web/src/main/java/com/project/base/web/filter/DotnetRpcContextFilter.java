@@ -1,8 +1,6 @@
 package com.project.base.web.filter;
 
-import com.project.base.dotnet.rpc.UrlCityParser;
-import com.project.base.dotnet.rpc.context.DotnetRpcContext;
-import com.project.base.dotnet.rpc.context.DotnetRpcContextManager;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,13 +20,13 @@ import java.io.IOException;
 public class DotnetRpcContextFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        try {
-            String url = request.getServletPath();
-            String city = UrlCityParser.getCityValue(url);
-            DotnetRpcContextManager.save(DotnetRpcContext.Builder.newBuilder().urlCityValue(city).build());
-            filterChain.doFilter(request, response);
-        } finally {
-            DotnetRpcContextManager.clear();
-        }
+//        try {
+//            String url = request.getServletPath();
+//            String city = UrlCityParser.getCityValue(url);
+//            DotnetRpcContextManager.save(DotnetRpcContext.Builder.newBuilder().urlCityValue(city).build());
+//            filterChain.doFilter(request, response);
+//        } finally {
+//            DotnetRpcContextManager.clear();
+//        }
     }
 }

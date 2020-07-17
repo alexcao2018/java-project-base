@@ -47,11 +47,19 @@
         return "ok";
     }
 
-4、 由于redisTemplate 序列化对象，会将类型也放入json中，可以使用jedis原生客户端
+4、 由于redisTemplate 序列化对象，默认使用了Jackson2JsonRedisSerializer 序列化，
+    Jackson2JsonRedisSerializer 将类型也放入json中。如果需要存储纯粹的json,
+    
+    1、使用jedis原生客户端
 
     用法：
        Jedis jedis = redisClient.getJedisPool().getResource();
        jedis.set("key", JsonTool.serialize(datasource));
        jedis.get("key");
        jedis.close();
-       
+    
+    2、设置ValueSerializer
+    
+      defaultRedisClient.getRedisTemplate().setValueSerializer(new StringRedisSerializer());
+      defaultRedisClient.set("api-activity-live-coupon-userCouponInfo:" + request.getCustomerGuid(), JsonTool.serialize(commonResponse), 60 * 60 * 4);
+    

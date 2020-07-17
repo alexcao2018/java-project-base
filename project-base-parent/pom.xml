@@ -86,33 +86,33 @@
         </pluginManagement>
     </build>
 
-    <repositories>
-        <repository>
-            <id>nexus</id>
-            <name>central</name>
-            <url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-public/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>warn</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>warn</checksumPolicy>
-            </snapshots>
-        </repository>
-    </repositories>
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<id>nexus</id>-->
+            <!--<name>central</name>-->
+            <!--<url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-public/</url>-->
+            <!--<layout>default</layout>-->
+            <!--<releases>-->
+                <!--<enabled>true</enabled>-->
+                <!--<updatePolicy>always</updatePolicy>-->
+                <!--<checksumPolicy>warn</checksumPolicy>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+                <!--<updatePolicy>always</updatePolicy>-->
+                <!--<checksumPolicy>warn</checksumPolicy>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
+    <!--</repositories>-->
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>shihang-snapshots</id>
-            <url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>shihang-releases</id>
-            <url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-releases/</url>
-        </repository>
-    </distributionManagement>
+    <!--<distributionManagement>-->
+        <!--<snapshotRepository>-->
+            <!--<id>shihang-snapshots</id>-->
+            <!--<url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-snapshots/</url>-->
+        <!--</snapshotRepository>-->
+        <!--<repository>-->
+            <!--<id>shihang-releases</id>-->
+            <!--<url>http://sy-suz-srv73.suiyi.com.cn:8081/repository/shihang-releases/</url>-->
+        <!--</repository>-->
+    <!--</distributionManagement>-->
 </project>

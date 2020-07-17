@@ -57,17 +57,17 @@ public class RedisAspect {
      * @return
      */
     @Around("pointcutCacheableMethod()")
-    public Object aroundCacheable(ProceedingJoinPoint joinPoint) {
+    public Object aroundCacheable(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = null;
         Method method = getMethod(joinPoint);
         RedisCacheable redisCacheable = method.getAnnotation(RedisCacheable.class);
+
+        /* 如果cache name 为空，直接调用方法，返回
+        --------------------------------
+         */
         if (StringUtils.isBlank(redisCacheable.cacheName())) {
-            try {
-                result = joinPoint.proceed();
-                return result;
-            } catch (Throwable throwable) {
-                logger.error(throwable.getMessage(), throwable);
-            }
+            result = joinPoint.proceed();
+            return result;
         }
 
         RedisClient redisClient = selectRedisClient(joinPoint, redisCacheable.flagExpression(), method);
@@ -78,25 +78,35 @@ public class RedisAspect {
         String cacheKey = MessageFormat.format("{0}{1}{2}", cachePrefix, splitter, cacheSuffix);
         int cacheTimeout = redisCacheable.timeout();
 
+        /* 如果redis 获取到结果，则返回
+        --------------------------------
+         */
         try {
             result = redisClient.get(cacheKey);
+            if (result != null) {
+                logger.info("命中缓存:{}", cacheKey);
+                return result;
+            }
         } catch (Throwable throwable) {
             logger.error(throwable.getMessage(), throwable);
         }
 
+
+        /* 未命中缓存，则调用方法，获得结果
+        --------------------------------
+         */
+        logger.info("未命中,缓存:{}", cacheKey);
+        result = joinPoint.proceed();
+
+        if (result == null)
+            return null;
+
+        /* 添加到缓存中
+        --------------------------------
+         */
         try {
-            if (result == null) {
-                logger.info("缓存:{},未命中", cacheKey);
-                result = joinPoint.proceed();
-
-                if (result != null) {
-                    redisClient.set(cacheKey, result, cacheTimeout);
-                    logger.info("缓存:{},添加到缓存，过期时间{}秒", cacheKey, cacheTimeout);
-                }
-
-            } else {
-                logger.info("缓存:{},命中", cacheKey);
-            }
+            redisClient.set(cacheKey, result, cacheTimeout);
+            logger.info("缓存:{},添加到缓存，过期时间{}秒", cacheKey, cacheTimeout);
         } catch (Throwable throwable) {
             logger.error(throwable.getMessage(), throwable);
         }

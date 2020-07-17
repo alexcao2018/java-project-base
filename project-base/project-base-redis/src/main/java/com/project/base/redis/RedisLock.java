@@ -5,8 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import redis.clients.jedis.Jedis;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 
@@ -52,14 +54,27 @@ public class RedisLock {
         if (key == null || value == null) {
             return false;
         }
+
+        Jedis jedis = null;
         try {
+            /* 此处Key 与 value 序列化，与lock 的序列化保持一致
+            否则，无法删除成功 ps:（KEYS[1]) == ARGV[1] 保持数据一致）
+            ---------------------------
+             */
             RedisTemplate<String, Object> redisTemplate = redisClient.getRedisTemplate();
-            Object result = redisTemplate.execute(scriptLock, Collections.singletonList(key), value);
+            RedisSerializer<Object> valueSerializer = (RedisSerializer<Object>) redisTemplate.getValueSerializer();
+            byte[] valueByte = valueSerializer.serialize(value);
+            jedis = redisClient.getJedisPool().getResource();
+            Object result = jedis.eval(luaScript.getBytes(), Arrays.asList(key.getBytes()), Arrays.asList(valueByte));
             return result != null && Long.parseLong(result.toString()) == 1;
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        } finally {
+            if (jedis != null)
+                jedis.close();
         }
+
+        return false;
     }
 
 

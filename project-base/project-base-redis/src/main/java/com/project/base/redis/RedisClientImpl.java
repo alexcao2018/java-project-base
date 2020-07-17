@@ -194,6 +194,23 @@ public class RedisClientImpl implements RedisClient {
         return true;
     }
 
+    @Override
+    public long increment(String key, long delta) {
+        if (delta < 0) {
+            throw new RuntimeException("递增因子必须大于0");
+        }
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+
+    @Override
+    public long decrement(String key, long delta) {
+        if (delta < 0) {
+            throw new RuntimeException("递增因子必须大于0");
+        }
+        return redisTemplate.opsForValue().increment(key, -delta);
+    }
+
+
     /**
      * hash 设置 key
      *
